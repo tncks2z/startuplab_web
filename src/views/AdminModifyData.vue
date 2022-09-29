@@ -79,7 +79,6 @@ export default {
 			this.dataList = result.data;
 			this.data_status = this.dataList.data.data_status;
 			this.inputValueList = JSON.parse(this.dataList.data.data_json);
-			console.log(this.data_status);
 		});
 	},
 	methods: {

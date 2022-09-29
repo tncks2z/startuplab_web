@@ -104,6 +104,7 @@
 </template>
 
 <script>
+import { msgbox } from '../service/common';
 import { getUserSearch, getUserWorkData, getUserWorkId } from '/@service/user';
 
 export default {
@@ -168,13 +169,14 @@ export default {
 
 				getUserWorkData(setData).then((result) => {
 					this.dataList = result.data;
-
-					this.dataListValue = [];
-					for (let i = 0; i < this.dataList.data.length; i++) {
-						const arr = JSON.parse(this.dataList.data[i].data_json);
-						this.dataListKey = Object.keys(arr);
-						this.searchOptionList = this.dataListKey;
-						this.dataListValue.push(arr);
+					if (this.dataList != null) {
+						this.dataListValue = [];
+						for (let i = 0; i < this.dataList.data.length; i++) {
+							const arr = JSON.parse(this.dataList.data[i].data_json);
+							this.dataListKey = Object.keys(arr);
+							this.searchOptionList = this.dataListKey;
+							this.dataListValue.push(arr);
+						}
 					}
 				});
 			}
@@ -219,10 +221,10 @@ export default {
 				this.resetSearchOption();
 				this.searchedData = '';
 			} else if ((this.selectedSearchOption == '') & (this.searchedData != '')) {
-				alert('검색할 칼럼을 선택해주세요');
+				this.msgbox('검색할 칼럼을 선택해주세요');
 				this.$refs.searchSelect.focus();
 			} else if ((this.selectedSearchOption != '') & (this.searchedData == '')) {
-				alert('검색할 키워드를 입력해주세요');
+				this.msgbox('검색할 키워드를 입력해주세요');
 				this.$refs.searchInput.focus();
 			} else {
 				this.searchedNone = false;

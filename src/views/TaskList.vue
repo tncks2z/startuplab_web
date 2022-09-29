@@ -274,22 +274,24 @@ export default {
 				getDataInfo(setData).then((result) => {
 					this.dataList = result.data;
 
-					for (let i = 0; i < this.dataList.data.length; i++) {
-						this.dataId[i] = this.dataList.data[i].data_id;
-					}
+					if (this.dataList != null) {
+						for (let i = 0; i < this.dataList.data.length; i++) {
+							this.dataId[i] = this.dataList.data[i].data_id;
+						}
 
-					for (let i = 0; i < this.dataList.data.length; i++) {
-						const arr = JSON.parse(this.dataList.data[i].data_json);
-						this.dataListKey = Object.keys(arr);
-						this.searchOptionList = this.dataListKey;
-					}
-					this.dataListValue = [];
-					for (let i = 0; i < this.dataList.data.length; i++) {
-						this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
-					}
+						for (let i = 0; i < this.dataList.data.length; i++) {
+							const arr = JSON.parse(this.dataList.data[i].data_json);
+							this.dataListKey = Object.keys(arr);
+							this.searchOptionList = this.dataListKey;
+						}
+						this.dataListValue = [];
+						for (let i = 0; i < this.dataList.data.length; i++) {
+							this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
+						}
 
-					for (let i = 0; i < this.dataListValue.length; i++) {
-						this.selectedTaskList[i] = this.dataListValue[i];
+						for (let i = 0; i < this.dataListValue.length; i++) {
+							this.selectedTaskList[i] = this.dataListValue[i];
+						}
 					}
 				});
 			}
