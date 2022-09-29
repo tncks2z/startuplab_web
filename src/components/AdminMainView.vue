@@ -63,7 +63,8 @@ export default {
       },
       route() {
         sessionStorage.setItem('assignment_id', this.assignment_id);
-        this.$router.replace('/admin/tasklist');
+        this.$router.push('/admin/tasklist').catch(() => {});
+        // this.$router.replace('/admin/tasklist');
       }
   } 
 }

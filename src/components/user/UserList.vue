@@ -81,7 +81,7 @@ export default {
   })
     .then(({ data }) => {
       this.users = data.data.user;
-      console.log(this.users);
+      // console.log(this.users);
     });
   },
   methods: {

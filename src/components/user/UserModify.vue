@@ -79,11 +79,13 @@ export default {
           console.log(data);
             let msg = "수정을 완료했습니다.";
             alert(msg);
-            this.$router.push("/admin/user/list");
+            this.moveList();
         })
     },
     moveList() {
-      this.$router.push("/admin/user/list");
+      // this.$router.push("/admin/user/list");
+      // this.$router.replace("/admin/user/list");
+      this.$router.go(-1);
     },
   }
 }

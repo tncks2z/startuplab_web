@@ -18,29 +18,6 @@ export async function getUserWorkData(param, callback) {
 	}
 }
 
-export async function getUserTodoData(param, callback) {
-	try {
-		const data = {
-			work_id: param.get('work_id'),
-			data_status: param.get('data_status'),
-		};
-
-		const result1 = await axios.post('/web/work/info', data);
-
-		const data2 = {
-			work_id: param.get('work_id'),
-			data_status: 3,
-		};
-
-		const result2 = await axios.post('/web/work/info', data2);
-
-		if (callback) callback(result1.data, result2.data);
-		return [result1.data, result2.data];
-	} catch (err) {
-		if (callback) callback(err.response);
-	}
-}
-
 // 검색
 export async function getUserSearch(param, callback) {
 	try {

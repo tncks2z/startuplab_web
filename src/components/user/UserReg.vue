@@ -81,11 +81,13 @@ export default {
           msg = '등록 완료';
         }
         alert(msg);
-        this.moveList()
+        this.moveList();
       });
     },
     moveList() {
-      this.$router.push({name: 'UserList'})
+      // this.$router.push({name: 'UserList'})
+      // this.$router.replace("/admin/user/list");
+      this.$router.go(-1);
     }
   }
 }
