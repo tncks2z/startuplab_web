@@ -1,0 +1,218 @@
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+body,
+talbe,
+th,
+td,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+fieldset,
+textarea,
+blockquote,
+span,
+* {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+html,
+body,
+div,
+ul,
+li,
+p,
+h3,
+h1,
+h2,
+h4,
+h5 {
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+ul,
+li {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: #303030;
+}
+textarea,
+input {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+html body {
+  width: 100%;
+  height: 100%;
+}
+
+.common-loading {
+  position: absolute;
+  box-sizing: border-box;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: #e17b46;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+}
+
+.common-loading img {
+  width: 30%;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.topbar {
+  height: 35px;
+  border-bottom: 1px solid lightgray;
+  justify-content: center;
+  align-items: center;
+  font-size: .8rem;
+}
+.topbar .logo, .topbar .inform { display: inline-block; width: 50%; }
+.topbar .logo img{ height: 35px; vertical-align: bottom !important; }
+.topbar .inform { text-align: right; vertical-align: bottom !important; }
+.topbar .username {
+  display: inline-block;
+  margin-left: 10px;
+}
+.topbar .username .empha {
+  font-size: 1.0rem;
+}
+.topbar .inform a {
+  display: inline-block;
+  height: 35px;
+  line-height: 35px;
+  color: black;
+  margin-left: 5px;
+}
+.topbar .inform a:hover {
+  color: black;
+  opacity: 70%;
+}
+.content {
+  min-height: 600px;
+}
+/* 테이블 공통 */
+.table {
+  min-width: 40rem;
+}
+.table th, .table td { 
+  text-align: center; 
+  font-size: .8rem; 
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.table th {
+  background-color: #FBEBE3 !important;
+  border-top: 2px solid #B9B9B9;
+  border-bottom: 2px solid #B9B9B9 !important;
+}
+.table .btn-secondary { 
+  margin: 0; 
+  font-size: .7rem; 
+  border: none;
+  background-color: #e17b46 !important;
+}
+.table .btn-secondary:hover {
+  background-color: #C15A33 !important;
+}
+/* 업무 선택영역 셀렉트 */
+.select-project {
+  display: inline-block !important;
+  width: 20% !important;
+  margin-right: 25px;
+  font-size: .8rem !important;
+}
+
+.flex { 
+  display: flex;
+  justify-content: space-between;
+}
+.search-area{
+  display: flex;
+  width: 45%;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: .8rem !important;
+}
+.search-area .form-select {    
+  display: inline-block;
+  width: 25%;
+  font-size: .8rem !important;
+}
+.search-area .form-control {
+  display: inline-block;
+  width: 60%;
+  font-size: .8rem !important;
+}
+.search-area .btn {
+  font-size: .8rem;
+  border: 1px solid #e17b46 !important;
+  color: #e17b46;
+  vertical-align: bottom;
+}
+.search-area .btn:hover {
+  color: #e17b46;
+  border: 1px solid #e17b46 !important;
+  background-color: #FBEBE3 !important;
+}
+/* teble scrollbar */
+table::-webkit-scrollbar {
+  width: 13px;
+  height: 13px;
+}
+table::-webkit-scrollbar-track {
+  background-color: #e4e4e4;
+  border-radius: 100px;
+}
+table::-webkit-scrollbar-thumb {
+  background-color: #fff;
+  border-radius: 100px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  /* border-left: 0;
+  border-right: 0; */
+}
+table::-webkit-scrollbar-thumb {
+  background-image: #fff;
+  box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5);
+  border-radius: 100px;
+}
+@media (max-width: 420px) {
+  .select-project {
+    width: 30% !important;
+    margin-right: 15px;
+  }
+  .flex {
+    width: 100%;
+    flex-direction: column;
+  }
+  .search-area {
+    display: inline-block;
+    width: 100%;
+  }
+}

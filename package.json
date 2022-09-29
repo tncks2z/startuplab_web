@@ -1,0 +1,34 @@
+{
+  "name": "startuplab",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vuepic/vue-datepicker": "^3.2.2",
+    "axios": "^0.21.1",
+    "bootstrap": "^5.2.0",
+    "bootstrap-vue": "^2.22.0",
+    "mosha-vue-toastify": "^1.0.23",
+    "path": "^0.12.7",
+    "vee-validate": "^4.5.8",
+    "vue": "^3.2.37",
+    "vue-advanced-cropper": "^2.8.1",
+    "vue-cookies": "^1.8.1",
+    "vue-gtag": "^2.0.1",
+    "vue-multiselect": "^3.0.0-alpha.2",
+    "vue-plugin-load-script": "^2.1.1",
+    "vue-router": "^4.0.12",
+    "vue-tel-input": "^6.0.0-beta.6",
+    "vue3-simple-typeahead": "^1.0.5",
+    "vuedraggable": "^4.1.0",
+    "vuex": "^4.0.2",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.3",
+    "vite": "^2.9.9"
+  }
+}
