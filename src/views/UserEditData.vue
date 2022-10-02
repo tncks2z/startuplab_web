@@ -42,7 +42,7 @@ import UserSelectBox from '/@components/UserSelectBox.vue';
 import UserRadioBox from '/@components/UserRadioBox.vue';
 import UserNote from '/@components/UserNote.vue';
 import { getUserEditForm, getUserAddForm } from '/@service/user';
-import { msgbox } from '../service/common';
+import { msgbox } from '/@service/common';
 
 export default {
 	data() {

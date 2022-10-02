@@ -42,6 +42,7 @@ import UserRadioBox from '/@components/UserRadioBox.vue';
 import UserNote from '/@components/UserNote.vue';
 import axios from 'axios';
 import { getUserAddForm } from '/@service/user';
+import { msgbox } from '/@service/common';
 export default {
 	data() {
 		return {
@@ -136,13 +137,13 @@ export default {
 				this.errors['status'].push('Error');
 			}
 			if (this.errors['form'].length != 0 && this.data_status == 6) {
-				alert('모든 입력창을 채워주세요');
+				msgbox('모든 입력창을 채워주세요');
 				var forms = document.querySelectorAll('.needs-validation');
 				Array.prototype.slice.call(forms).forEach(function (form) {
 					form.classList.add('was-validated');
 				});
 			} else if (this.errors['status'].length != 0) {
-				alert('데이터 상태에 체크를 해주세요');
+				msgbox('데이터 상태에 체크를 해주세요');
 				var forms = document.querySelectorAll('.needs-validation');
 				Array.prototype.slice.call(forms).forEach(function (form) {
 					form.classList.add('was-validated');
@@ -159,7 +160,7 @@ export default {
 					method: 'post',
 					url: 'http://52.22.216.42:8090/web/db/store',
 					data: {
-						work_id: 10,
+						work_id: this.projectCode,
 						user_id: 2,
 						data_json: inputData,
 						data_status: this.data_status,

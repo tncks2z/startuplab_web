@@ -7,21 +7,17 @@
 			<div v-for="(column, i) in columnList.data" :key="i">
 				<UserInput
 					:label="column.meta_name"
-					:inputValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
+					:inputValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@inputFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-if="column.meta_type === '1'" />
 				<UserSelectBox
 					:label="column.meta_name"
-					:selectValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
-					@selectFromChild="inputValueList[column.meta_name] = String($event.target.value)"
+					:selectValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
+					@selectFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-else-if="column.meta_type === '2'" />
 				<UserNote
 					:label="column.meta_name"
-					:note="(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))"
+					:note="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@inputFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-else-if="column.meta_type === '5'" />
 				<!-- <UserRadioBox
@@ -47,6 +43,7 @@ import UserSelectBox from '/@components/UserSelectBox.vue';
 import UserRadioBox from '/@components/UserRadioBox.vue';
 import UserNote from '/@components/UserNote.vue';
 import { getUserEditForm, getUserAddForm } from '/@service/user';
+import { msgbox } from '../service/common';
 
 export default {
 	data() {
@@ -110,7 +107,7 @@ export default {
 			// 	this.errors['status'].push('Error');
 			// }
 			if (this.errors['form'].length != 0 && this.data_status == 6) {
-				alert('모든 입력창을 채워주세요');
+				msgbox('모든 입력창을 채워주세요');
 				var forms = document.querySelectorAll('.needs-validation');
 				Array.prototype.slice.call(forms).forEach(function (form) {
 					form.classList.add('was-validated');
@@ -131,9 +128,9 @@ export default {
 				var inputData = JSON.stringify(this.inputValueList);
 				axios({
 					method: 'post',
-					url: 'http://52.22.216.42:8090/web/db/store',
+					url: 'http://52.22.216.42:8090/web/db/edit',
 					data: {
-						work_id: 10,
+						work_id: this.projectCode,
 						user_id: 2,
 						data_json: inputData,
 						data_status: this.data_status,
