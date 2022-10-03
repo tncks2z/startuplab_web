@@ -18,7 +18,7 @@
 export default {
 	props: {
 		label: String,
-		selectValue: Number,
+		selectValue: String,
 	},
 	data() {
 		return {

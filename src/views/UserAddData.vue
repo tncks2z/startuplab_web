@@ -13,7 +13,7 @@
 				<UserSelectBox
 					:label="column.meta_name"
 					:selectValue="(inputValueList[column.meta_name] = selectValue)"
-					@selectFromChild="inputValueList[column.meta_name] = Number($event.target.value)"
+					@selectFromChild="inputValueList[column.meta_name] = String($event.target.value)"
 					v-else-if="column.meta_type === '2'" />
 				<UserNote
 					:label="column.meta_name"

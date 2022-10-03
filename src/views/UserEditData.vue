@@ -7,12 +7,16 @@
 			<div v-for="(column, i) in columnList.data" :key="i">
 				<UserInput
 					:label="column.meta_name"
-					:inputValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
+					:inputValue="
+						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
+					"
 					@inputFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-if="column.meta_type === '1'" />
 				<UserSelectBox
 					:label="column.meta_name"
-					:selectValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
+					:selectValue="
+						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
+					"
 					@selectFromChild="inputValueList[column.meta_name] = Number($event.target.value)"
 					v-else-if="column.meta_type === '2'" />
 				<UserNote
