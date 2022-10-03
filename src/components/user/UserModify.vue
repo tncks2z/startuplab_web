@@ -30,6 +30,7 @@
 
 <script>
 import axios from 'axios';
+import { isNotEmpty } from '/@service/util';
 
 export default {
   data() {
@@ -55,15 +56,16 @@ export default {
   },
   methods: {
     checkValue() {
-      let err = true;
-      let msg = '';
-      console.log('눌렀음 !!');
-      !this.user_name && ((msg = '인턴 이름을 입력해 주세요.'), (err= false), this.$refs.user_name.focus());
-        err && !this.user_phone && ((msg = '전화번호를 입력해 주세요.'), (err= false), this.$refs.user_phone.focus());
-        err && !this.assignment_id && ((msg = '과제를 입력해 주세요.'), (err= false), this.$refs.assignment_id.focus());
-
-        if(!err) alert(msg);
-        else this.modifyArticle();
+      if (!isNotEmpty(this.user_name)) {
+        this.msgbox('입력칸을 모두 채워주세요.');
+        return;
+      } else if (!isNotEmpty(this.user_phone)) {
+        this.msgbox('입력칸을 모두 채워주세요.');
+        return;
+      } else if (!isNotEmpty(this.assignment_id)) {
+        this.msgbox('입력칸을 모두 채워주세요.');
+        return;
+      } else this.modifyArticle();
     },
 
     modifyArticle() {
@@ -78,13 +80,13 @@ export default {
         .then(({ data }) => {
           console.log(data);
             let msg = "수정을 완료했습니다.";
-            alert(msg);
+            this.msgbox(msg);
+            // this.$router.push("/admin/user/list").catch(() => {});
             this.moveList();
         })
     },
     moveList() {
-      // this.$router.push("/admin/user/list");
-      // this.$router.replace("/admin/user/list");
+      // this.$router.replace("/admin/user/list").catch(() => {});
       this.$router.go(-1);
     },
   }
