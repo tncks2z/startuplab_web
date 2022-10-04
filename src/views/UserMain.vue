@@ -221,10 +221,10 @@ export default {
 				this.resetSearchOption();
 				this.searchedData = '';
 			} else if ((this.selectedSearchOption == '') & (this.searchedData != '')) {
-				this.msgbox('검색할 칼럼을 선택해주세요');
+				msgbox('검색할 칼럼을 선택해주세요');
 				this.$refs.searchSelect.focus();
 			} else if ((this.selectedSearchOption != '') & (this.searchedData == '')) {
-				this.msgbox('검색할 키워드를 입력해주세요');
+				msgbox('검색할 키워드를 입력해주세요');
 				this.$refs.searchInput.focus();
 			} else {
 				this.searchedNone = false;
