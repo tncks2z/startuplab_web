@@ -48,15 +48,16 @@ export default {
 		return {
 			inputValueList: {},
 			columnList: [],
-			inputValue: null,
-			selectValue: null,
-			radioValue: null,
-			note: null,
+			inputValue: '',
+			selectValue: '',
+			radioValue: '',
+			note: '',
 			data_status: null,
 			errors: {
 				form: [],
 				status: [],
 			},
+			user_id: '',
 			projectName: '',
 			projectCode: '',
 			znCode: null,
@@ -68,6 +69,7 @@ export default {
 		};
 	},
 	created() {
+		this.user_id = this.$cookies.get('userId');
 		const setData = new FormData();
 
 		this.projectCode = sessionStorage.getItem('projectCode');
@@ -128,8 +130,8 @@ export default {
 				status: [],
 			};
 			for (var key in this.inputValueList) {
-				if (this.inputValueList[key] == null) {
-					this.inputValueList[key] = null;
+				if (this.inputValueList[key] == '') {
+					this.inputValueList[key] = '';
 					this.errors['form'].push('Error');
 				}
 			}
@@ -158,16 +160,16 @@ export default {
 				var inputData = JSON.stringify(this.inputValueList);
 				axios({
 					method: 'post',
-					url: 'http://52.22.216.42:8090/web/db/store',
+					url: '/web/db/store',
 					data: {
 						work_id: this.projectCode,
-						user_id: 2,
+						user_id: this.user_id,
 						data_json: inputData,
 						data_status: this.data_status,
 					},
 				})
 					.then((res) => {
-						console.log(inputData, this.data_status);
+						console.log(inputData, this.data_status, this.user_id);
 						e.target.reset();
 						this.inputValueList = {};
 						var forms = document.querySelectorAll('.needs-validation');

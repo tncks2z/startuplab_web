@@ -7,16 +7,12 @@
 			<div v-for="(column, i) in columnList.data" :key="i">
 				<UserInput
 					:label="column.meta_name"
-					:inputValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
+					:inputValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@inputFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-if="column.meta_type === '1'" />
 				<UserSelectBox
 					:label="column.meta_name"
-					:selectValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
+					:selectValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@selectFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-else-if="column.meta_type === '2'" />
 				<UserNote
@@ -61,6 +57,7 @@ export default {
 			projectName: '',
 			projectCode: '',
 			data_id: '',
+			user_id: '',
 			data_status: 0,
 			isPassValidatoin: false,
 		};
@@ -102,8 +99,8 @@ export default {
 				status: [],
 			};
 			for (var key in this.inputValueList) {
-				if (this.inputValueList[key] === '') {
-					this.inputValueList[key] = null;
+				if (this.inputValueList[key] == '') {
+					this.inputValueList[key] = '';
 					this.errors['form'].push('Error');
 				}
 			}
@@ -132,10 +129,10 @@ export default {
 				var inputData = JSON.stringify(this.inputValueList);
 				axios({
 					method: 'post',
-					url: 'http://52.22.216.42:8090/web/db/edit',
+					url: '/web/db/edit',
 					data: {
-						work_id: this.projectCode,
-						user_id: 2,
+						data_id: this.data_id,
+						user_id: this.user_id,
 						data_json: inputData,
 						data_status: this.data_status,
 					},

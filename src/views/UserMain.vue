@@ -99,6 +99,13 @@
 					</tr>
 				</tbody>
 			</table>
+			<!-- <vue-awesome-paginate
+				:total-items="defineTotalItems"
+				:items-per-page="itemsPerPage"
+				:max-pages-shown="MaxPagesShown"
+				:current-page="currentPage"
+				:on-click="onClickHandler"
+				:show-breakpoint-buttons="false" /> -->
 		</div>
 	</div>
 </template>
@@ -109,7 +116,12 @@ import { getUserSearch, getUserWorkData, getUserWorkId } from '/@service/user';
 
 export default {
 	created() {
-		getUserWorkId().then((result) => {
+		this.assignment_id = this.$cookies.get('assignmentId');
+
+		const setData = new FormData();
+		setData.set('assignment_id', this.assignment_id);
+
+		getUserWorkId(setData).then((result) => {
 			this.projectList = result.data.data;
 		});
 	},
@@ -125,6 +137,17 @@ export default {
 
 	data() {
 		return {
+			//⬇️ paginate 변수
+			selectPage: 1,
+			itemsPerPage: 5, //한 페이지 당 출력해야하는 행의 갯수
+			MaxPagesShown: 5, // 페이지 숫자 버튼 값 기본값 5개
+			currentPage: 1, //  현재 활성 페이지 기본값 1
+
+			//⬇️ user 데이터
+			assignment_id: '',
+			user_id: '',
+
+			//⬇️ 업무관련 데이터
 			pjName: '',
 			tkName: '',
 			selectedTaskCode: '',

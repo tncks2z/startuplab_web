@@ -7,16 +7,12 @@
 			<div v-for="(column, i) in columnList.data" :key="i">
 				<UserInput
 					:label="column.meta_name"
-					:inputValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
+					:inputValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@inputFromChild="inputValueList[column.meta_name] = $event.target.value"
 					v-if="column.meta_type === '1'" />
 				<UserSelectBox
 					:label="column.meta_name"
-					:selectValue="
-						(inputValueList[column.meta_name] = String(inputValueList[column.meta_name]))
-					"
+					:selectValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
 					@selectFromChild="inputValueList[column.meta_name] = Number($event.target.value)"
 					v-else-if="column.meta_type === '2'" />
 				<UserNote
@@ -60,11 +56,14 @@ export default {
 			projectName: '',
 			projectCode: '',
 			data_id: '',
+			user_id: '',
 			data_status: 0,
 			isPassValidatoin: false,
 		};
 	},
 	created() {
+		this.user_id = this.$cookies.get('userId');
+
 		const setAddData = new FormData();
 		const setEditData = new FormData();
 
@@ -101,8 +100,8 @@ export default {
 				status: [],
 			};
 			for (var key in this.inputValueList) {
-				if (this.inputValueList[key] === '') {
-					this.inputValueList[key] = null;
+				if (this.inputValueList[key] == '') {
+					this.inputValueList[key] = '';
 					this.errors['form'].push('Error');
 				}
 			}
@@ -110,18 +109,19 @@ export default {
 				this.errors['status'].push('Error');
 			}
 			if (this.errors['form'].length != 0 && this.data_status == 6) {
-				this.msgbox('모든 입력창을 채워주세요');
+				msgbox('모든 입력창을 채워주세요');
 				var forms = document.querySelectorAll('.needs-validation');
 				Array.prototype.slice.call(forms).forEach(function (form) {
 					form.classList.add('was-validated');
 				});
 			} else if (this.errors['status'].length != 0) {
-				this.msgbox('데이터 상태에 체크를 해주세요');
+				msgbox('데이터 상태에 체크를 해주세요');
 				var forms = document.querySelectorAll('.needs-validation');
 				Array.prototype.slice.call(forms).forEach(function (form) {
 					form.classList.add('was-validated');
 				});
 			} else {
+				console.log(this.errors.form);
 				this.isPassValidatoin = true;
 			}
 		},
@@ -131,16 +131,16 @@ export default {
 				var inputData = JSON.stringify(this.inputValueList);
 				axios({
 					method: 'post',
-					url: 'http://52.22.216.42:8090/web/db/edit',
+					url: '/web/db/edit',
 					data: {
-						work_id: this.projectCode,
-						user_id: 2,
+						data_id: this.data_id,
+						user_id: this.user_id,
 						data_json: inputData,
 						data_status: this.data_status,
 					},
 				})
 					.then((res) => {
-						console.log(inputData, this.data_status);
+						console.log(inputData, this.data_id, this.data_status, this.user_id);
 						e.target.reset();
 						this.inputValueList = {};
 						var forms = document.querySelectorAll('.needs-validation');

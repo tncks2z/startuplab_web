@@ -36,9 +36,12 @@ export async function getUserSearch(param, callback) {
 }
 
 // 업무선택 셀렉트박스
-export async function getUserWorkId(callback) {
+export async function getUserWorkId(param, callback) {
 	try {
-		const result = await axios.post('/web/all/works');
+		const data = {
+			assignment_id: param.get('assignment_id'),
+		};
+		const result = await axios.post('/web/all/works', data);
 		if (callback) callback(result.data);
 		return result.data;
 	} catch (err) {
