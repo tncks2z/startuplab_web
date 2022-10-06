@@ -38,10 +38,6 @@ export default {
     AdminMainView,
   },
   methods: {
-    // console.log(asd);
-    // var total = dummy[2].data_status4 + dummy[2].data_status3 + dummy[2].data_status2 + dummy[2].data_status1
-    // const asd = Math.round(dummy[2].data_status1/total)
-    // console.log(asd);
   },
 };
 </script>

@@ -1,49 +1,49 @@
 <template>
-<Modal
-:isAct="isModalAct"
-@closeModal="closeModal"
-:user_name="modalUserName"  
-:user_id="modalUserId" 
-:user_email="modalUserEmail"  
-:user_type="modalUserType"  
-:user_status="modalUserStatus"/>
-<div class="container">
-  <div class="name">
-    <h4 class="underline">인턴 관리</h4>
-  </div>
-  <div class="flex">
-    <div class="flex-area">
-      <button class="btn btn-secondary" @click="movePage">인턴 추가</button>
+<div>
+  <Modal :isAct="isModalAct" @closeModal="closeModal"
+  :user_name="modalUserName"  
+  :user_id="modalUserId" 
+  :user_email="modalUserEmail"  
+  :user_type="modalUserType"  
+  :user_status="modalUserStatus"/>
+  <div class="container">
+    <div class="name">
+      <h4 class="underline">인턴 관리</h4>
     </div>
-    <div class="search-area flex-area" >
-      <select class="form-select" v-model="selectedOption" >
-        <option option disabled value="" selected>선택</option>
-        <option value="user_name">이름</option>
-        <option value="assignment_id">과제</option>
-      </select>
-      <input type="text" class="form-control" placeholder="검색어를 입력하세요" :value="keyword" @input="changeKeyword" @keypress.enter="searchData" />
-      <button class="btn" type="submit" @click="searchData">검색</button>
+    <div class="flex">
+      <div class="flex-area">
+        <button class="btn btn-secondary" @click="movePage">인턴 추가</button>
+      </div>
+      <div class="search-area flex-area" >
+        <select class="form-select" v-model="selectedOption" >
+          <option option disabled value="" selected>선택</option>
+          <option value="user_name">이름</option>
+          <option value="assignment_id">과제</option>
+        </select>
+        <input type="text" class="form-control" placeholder="검색어를 입력하세요" :value="keyword" @input="changeKeyword" @keypress.enter="searchData" />
+        <button class="btn" type="submit" @click="searchData">검색</button>
+      </div>
     </div>
-  </div>
-  <div class="maintable table-responsive">
-    <div v-if="users.length">
-      <table class="table" id="intern-list">
-        <thead class="table head">
-          <tr>
-              <th scope="col">이름</th>
-              <th scope="col">아이디</th>
-              <th scope="col">비밀번호</th>
-              <th scope="col">전화번호</th>
-              <th scope="col">과제</th>
-              <th scope="col" class="manage">관리</th>
-          </tr>
-        </thead>
-        <tbody class="table-body">
-          <user-list-row v-for="(user, i) in users" :key="i" :user="user" :assignment_name = assignment_name @openModal="openModal($event)" :user_id = user.user_id ></user-list-row>
-        </tbody>
-      </table>
+    <div class="maintable table-responsive">
+      <div v-if="users.length">
+        <table class="table" id="intern-list">
+          <thead class="table head">
+            <tr>
+                <th scope="col">이름</th>
+                <th scope="col">아이디</th>
+                <!-- <th scope="col">비밀번호</th> -->
+                <th scope="col">전화번호</th>
+                <th scope="col">과제</th>
+                <th scope="col" class="manage">관리</th>
+            </tr>
+          </thead>
+          <tbody class="table-body">
+            <user-list-row v-for="(user, i) in users" :key="i" :user="user" :assignment_name = assignment_name @openModal="openModal($event)" :user_id = user.user_id ></user-list-row>
+          </tbody>
+        </table>
+      </div>
+      <div v-else class="text-center">회원이 없습니다.</div>
     </div>
-    <div v-else class="text-center">회원이 없습니다.</div>
   </div>
 </div>
 </template>
@@ -81,7 +81,7 @@ export default {
   })
     .then(({ data }) => {
       this.users = data.data.user;
-      // console.log(this.users);
+      console.log(this.users);
     });
   },
   methods: {
@@ -96,7 +96,7 @@ export default {
       });
     },
     movePage() {
-      this.$router.push({ name: 'UserReg' });
+      this.$router.push("/admin/user/register").catch(() => {});
     },
     changeKeyword(w) {
       this.keyword = w.target.value;
@@ -162,9 +162,9 @@ h4 {
 .table-body{
     vertical-align: middle;
 }
-.manage {
+/* .manage {
     width: 15%;
-}
+} */
 
 .flex-area .btn-secondary {
   font-size: .8rem;

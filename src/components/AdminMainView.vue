@@ -3,31 +3,33 @@
   <div class="card">
     <div class="card-body">
       <div class="card-box">
-        <p class="card-text"><span class="card-title">
-          <span v-if="assignment_id === 1">
-              <a @click="route()">광진구</a>
+        <p class="card-text">
+          <span class="card-title">
+            <span v-if="assignment_id === 1">
+                <a @click="route()">광진구</a>
+            </span>
+            <span v-else-if="assignment_id === 2">
+              <a @click="route()">순천</a>
+            </span>
+            <span v-else-if="assignment_id === 3">
+              <a @click="route()">광주</a>
+            </span>
+            <span v-else-if="assignment_id === 4">
+              <a @click="route()">문정원</a>
+            </span>
           </span>
-          <span v-else-if="assignment_id === 2">
-            <a @click="route()">순천</a>
-          </span>
-          <span v-else-if="assignment_id === 3">
-            <a @click="route()">광주</a>
-          </span>
-          <span v-else-if="assignment_id === 4">
-            <a @click="route()">문정원</a>
-          </span>
-          </span><span class="title">진행률</span>{{asd(data_status1, totals)}} {{ asds }}%</p>
+          <span class="title">진행률</span>{{avg()}} {{ avgs }}%</p>
         <div class="box">
-            <p class="card-text1"><span class="text">분배 전</span><span class="count_1">{{ data_status1 }} <span class="text-count">건</span></span></p>
+            <p class="card-text1"><span class="text">분배 전</span><span class="count_1">{{ numberWithCommas(data_status1) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed"> 
-            <p class="card-text2"><span class="text">임시저장</span> <span class="count_2" style="margin-left: 187px;">{{ data_status3 }} <span class="text-count">건</span></span></p>
+            <p class="card-text2"><span class="text">임시저장</span> <span class="count_2" style="margin-left: 187px;">{{ numberWithCommas(data_status3) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed">
-            <p class="card-text3"><span class="text">실측/조사불가</span> <span class="count_3" style="margin-left: 155px;">{{ data_status4 }} / {{ data_status5 }}</span> <span class="text-count">건</span></p>
+            <p class="card-text3"><span class="text">실측/조사불가</span> <span class="count_3" style="margin-left: 155px;">{{ numberWithCommas(data_status4) }} / {{ numberWithCommas(data_status5) }}</span> <span class="text-count">건</span></p>
             <hr class="hr-dashed">
-            <p class="card-text4"><span class="text">완료</span><span class="count_4" style="margin-left: 216px;" >{{ data_status6 }} <span class="text-count">건</span></span></p>
+            <p class="card-text4"><span class="text">완료</span><span class="count_4" style="margin-left: 216px;" >{{ numberWithCommas(data_status6) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed">
         </div>
-        <p class="total">{{ total(data_status6, data_status5, data_status4 ,data_status3 ,data_status1) }}(총 {{ totals }} 건) </p>
+        <p class="total">{{ total() }}(총 {{ numberWithCommas(totals) }} 건) </p>
       </div>
     </div>
   </div>
@@ -49,22 +51,27 @@ export default {
     data() {
       return {
         totals: 0,
-        asds: 0,
+        avgs: 0,
       }
     },
     methods: {
-      total(data_status5, data_status4 , data_status3 , data_status6 , data_status1) {
-        this.totals = data_status5 + data_status4 + data_status3 + data_status6 + data_status1
-        // console.log(this.totals);
-      }, 
-      asd(data_status5, totals) {
-        this.asds = Math.round(data_status5/totals)
-        // console.log(this.asds);
-      },
+      total() {
+        this.totals = this.data_status5 + this.data_status4 + this.data_status3 + this.data_status6 + this.data_status1
+    }, 
+      avg() {
+        if (isNaN()) { 
+          this.avgs = 0;
+        }
+        else {
+          this.avgs = Math.round((this.data_status5/this.totals)*100);
+        }
+    },
+      numberWithCommas(x) { 
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+    },
       route() {
         sessionStorage.setItem('assignment_id', this.assignment_id);
         this.$router.push('/admin/tasklist').catch(() => {});
-        // this.$router.replace('/admin/tasklist');
       }
   } 
 }

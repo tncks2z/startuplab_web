@@ -36,7 +36,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">취소</button>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="divideTask()" :disabled="divideBtn">분배</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="divideTaskTodo()" :disabled="divideBtn">할일 분배</button>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="divideTaskLocation()" :disabled="divideBtn">실측 분배</button>
           </div>
         </div>
       </div>
@@ -44,9 +45,12 @@
 
     <div class="flex">
       <!-- 업무분배 버튼 영역 -->
-      <div class="divide-area flex-area" v-if="selectedTask && selectedTask !== '조사불가' && selectedWork">
+      <div class="divide-area flex-area" v-if="selectedTask && selectedTaskName !== '완료' && selectedWork">
         <button class="btn btn-secondary" type="button" v-if="selectList.length !== 0" data-bs-toggle="modal" data-bs-target="#taskDivision">업무 분배</button>
         <button class="btn btn-secondary" type="button" v-else @click="this.msgbox('분배할 데이터를 선택해주세요.')">업무 분배</button>
+      </div>
+      <div class="divide-area flex-area" v-else>
+
       </div>
 
       <!-- 검색영역 -->
@@ -71,6 +75,7 @@
               <input type="checkbox" :value="allSelected" v-model="allSelected" />
             </th>
             <th></th>
+            <th scope="col">최종수정날짜</th>
             <th :key="i" v-for="(datakey, i) in dataListKey">
               {{ datakey }}
             </th>
@@ -85,6 +90,9 @@
               <router-link :to="`/admin/tasklist/modify/${dataList.data[i].data_id}`">
                 <button type="button" class="btn btn-secondary" @click="pushDataId(dataList.data[i].data_id)">수정</button>
               </router-link>
+            </td>
+            <td scoped="row">
+              {{ $filters.dateFormat(dataList.data[i].update_time) }}
             </td>
             <td :key="j" v-for="(datakey, j) in dataListKey">
               {{ data[datakey] }}
@@ -118,8 +126,6 @@ export default {
 
       this.getDividenUser();
       this.showAll();
-
-      console.log(this.user);
     });
   },
   data() {
@@ -213,9 +219,14 @@ export default {
         sessionStorage.setItem('workListKey', this.workListKey);
         sessionStorage.setItem('selectedWork', work_id);
         sessionStorage.setItem('workName', this.workName);
-
-        setData.set('work_id', work_id);
-        setData.set('data_status', this.selectedTask);
+        if(this.selectedTask == 4) {
+          setData.set('work_id', work_id);
+          setData.set('data_status', this.selectedTask);
+          setData.set('user_id', -1);
+        } else {
+          setData.set('work_id', work_id);
+          setData.set('data_status', this.selectedTask);
+        }
 
         getDataInfo(setData).then((result) => {
           this.dataList = result.data;
@@ -246,7 +257,7 @@ export default {
     checkRadio() {
       this.divideBtn = false;
     },
-    divideTask() {
+    divideTaskTodo() {
       for (let i = 0; i < this.user.id.length; i++) {
         if (this.user.name[i] === this.selectedUser) {
           this.selectedUserId = this.user.id[i];
@@ -259,9 +270,46 @@ export default {
         this.idsArray[i] = this.dataId[this.tasks[i]];
       }
 
-      this.cancel();
-      this.$router.go();
-      this.selectList = [];
+      const setData = new FormData();
+      setData.set('user_id', this.selectedUserId);
+      setData.set('idsArray', this.idsArray);
+      setData.set('data_status', 2);
+
+      this.divideTask(setData);
+    },
+    divideTaskLocation() {
+      for (let i = 0; i < this.user.id.length; i++) {
+        if (this.user.name[i] === this.selectedUser) {
+          this.selectedUserId = this.user.id[i];
+        }
+      }
+      this.tasks = this.selectList;
+
+      let ids = '';
+      for (let i = 0; i < this.tasks.length; i++) {
+        this.idsArray[i] = this.dataId[this.tasks[i]];
+      }
+
+      const setData = new FormData();
+      setData.set('user_id', this.selectedUserId);
+      setData.set('idsArray', this.idsArray);
+      setData.set('data_status', 4);
+
+      this.divideTask(setData);
+    },
+    divideTask(setData) {
+      setWorkDistribute(setData).then((result) => {
+        console.log('result : ', result);
+        if (result.error.code != 0) {
+          this.msgbox(result.error.msg);
+          return;
+        }
+        this.msgbox(this.msg.SUCCESS);
+
+        this.cancel();
+        this.selectList = [];
+        this.$router.go();
+      });
     },
     cancel() {
       this.selectedUser = '';
@@ -334,6 +382,7 @@ export default {
     },
   },
 };
+
 </script>
 <style scoped>
 .container {
@@ -356,11 +405,24 @@ export default {
 .modal-content {
   width: 80%;
   margin: 0 auto;
+  font-size: .8rem;
 }
 .modal-body {
   padding-top: 20px;
 }
-.center {
+.modal-footer .btn-primary {
+  background-color: #E17B46;
+  border: 1px solid #e17b46;
+  font-size: .8rem;
+}
+.modal-footer .btn-secondary {
+  border: 1px solid #B9B9B9;
+  color: #828282;
+  background-color: #fff;
+  font-size: .8rem;
+}
+.modal-body .center {
+  font-weight: 700;
   text-align: center;
 }
 .modal-footer {

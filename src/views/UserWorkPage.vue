@@ -5,9 +5,9 @@
 				v-model="selectedProjectCode"
 				class="form-select"
 				@change="showProject($event)">
-				<option value="" selected>업무 선택</option>
-				<option :value="project.pjcode" :key="i" v-for="(project, i) in projectList">
-					{{ project.pjname }}
+				<option value="" selected disabled>업무 선택</option>
+				<option :value="project.work_id" :key="i" v-for="(project, i) in projectList">
+					{{ project.work_name }}
 				</option>
 			</select>
 		</div>
@@ -76,9 +76,7 @@
 				</div>
 			</div>
 
-			<div class="table-responsive" v-if="selectedProjectCode" 
-						:items-per-page="itemsPerPage"
-						:v-model="currentPage">
+			<div class="table-responsive" v-if="selectedProjectCode">
 				
 				<table class="table">
 					<thead>
@@ -102,47 +100,33 @@
 						</tr>
 					</tbody>
 				</table>
-				<vue-awesome-paginate
+				<!-- <vue-awesome-paginate
 						:total-items="defineTotalItems"
 						:items-per-page="itemsPerPage"
 						:max-pages-shown="MaxPagesShown"
 						:current-page="currentPage"
 						:on-click="onClickHandler"
-						:show-breakpoint-buttons="false"/>
+						:show-breakpoint-buttons="false"/> -->
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+// import axios from 'axios';
+import { getUserWorkId } from "/@service/user";
 import {getDataInfo} from "/@service/admin/data";
 
 export default {
 	data() {
 		return {
-			selectPage: 1,
-			itemsPerPage:5, //한 페이지 당 출력해야하는 행의 갯수
-			MaxPagesShown: 5, // 페이지 숫자 버튼 값 기본값 5개
-			currentPage:1, //  현재 활성 페이지 기본값 1
+			user_name: '',
+			user_id: '',
 
 			// ▼셀렉트 데이터 임시
 			pjName: '',
 			selectedProjectCode: '',
-			projectList: [
-				{ pjname: '광진구', pjcode: 1 },
-				{ pjname: '순천', pjcode: 2 },
-				{ pjname: '광주', pjcode: 3 },
-				{ pjname: '문정원_OTT', pjcode: 4 },
-				{ pjname: '문정원_펫프렌드', pjcode: 5 },
-				{ pjname: '문정원_베리어프리', pjcode: 6 },
-				{ pjname: '문정원_트렌드기반 문화시설', pjcode: 7 },
-				{ pjname: '문정원_문화다양성', pjcode: 8 },
-				{ pjname: '문정원_커뮤니티', pjcode: 9 },
-				{ pjname: '문정원_액티비티', pjcode: 10 },
-				{ pjname: '문정원_가족여가', pjcode: 11 },
-			],
-			Userdate: [{ User: '문정원_OTT', value: '문정원_OTT' }],
-			User: ['사수봉', '김인턴', '최인턴'],
+			projectList: [],
 			projects: ['문정원', '광진구', '광주', '순천'],
 			progress: ['26.3'],
 			avg_progress: ['5.9'],
@@ -152,23 +136,26 @@ export default {
 			dataList: [],
 			dataListKey: [],
 			dataListValue: [],
+			assignment_id: '',
+			assignment_name: '',
+			work_name:'',
 		};
 	},
-	// created() {
-	// 	axios.get(`http://52.22.216.42:8090/common/user/info/${this.$route.params.user_id}`).then(({ data }) => {
-	// 		// console.log(data.data.user.user_id);
-	// 		this.user_id = data.data.user.user_id;
-	// 		this.user_name = data.data.user.user_name;
-	// 		this.user_email = data.data.user.user_email;
-	// 		this.user_phone = data.data.user.user_phone;
-	// 		this.assignment_id = data.data.user.assignment_id;
-	// 		this.user_type = data.data.user.user_type;
-	// 	})
-	// },
+	created() {
+		this.user_name = sessionStorage.getItem('user_name')
+		this.user_id = sessionStorage.getItem('user_id')
+		this.assignment_id = sessionStorage.getItem('assignment_id')
+	},
+	mounted() {
+		const setData = new FormData();
+		setData.set('assignment_id', this.assignment_id);
+
+		getUserWorkId(setData).then((result) => {
+			this.projectList = result.data.data;
+			console.log(this.projectList);
+		});
+	},
 	methods: {
-		defineTotalItems() {
-			this.defineTotalItems = this.dataListValue.length
-		},
 		showProject(e) {
 			this.pjName = e.target.options[e.target.options.selectedIndex].text;
 			this.showTable();
@@ -191,7 +178,7 @@ export default {
 					for (let i = 0; i < this.dataList.data.length; i++) {
 						this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
 					}
-					this.defineTotalItems();
+					// this.defineTotalItems();
 				});
 			}
 		},
@@ -251,9 +238,9 @@ option {
 }
 .title {
 	display: inline-block;
-	width: 45%;
+	width: 40%;
 	margin-top: 30px;
-	margin-left: 15%;
+	margin-left: 10%;
 	padding-bottom: 5px;
 	text-align: center;
 }
@@ -277,30 +264,31 @@ option {
 	align-items: center;
 }
 .main {
-	width: 30%;
+	width: 40%;
 }
 .theme_total {
 	display: inline-block;
-	margin-left: 20px;
-	font-size: 1.3rem;
+	margin-left: 18%;
+	font-size: 1.5rem;
 	font-weight: 800;
 }
 .user_per {
 	display: inline-block;
-	font-size: 1.25em;
+	font-size: 1.7em;
 	color: #e17b46;
 	font-weight: 800;
-	margin-left: 20px;
+	margin-left: 15px;
 }
 .avg_per {
 	font-size: 0.8rem;
 	color: black;
 	font-weight: 700;
+	margin-left: 5px;
 }
 .temp_storage,
 .actual_measurement,
 .completion {
-	margin-left: 5%;
+	margin-left: 8%;
 }
 .ts {
 	color: #d64c57;

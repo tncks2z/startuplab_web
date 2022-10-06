@@ -1,16 +1,17 @@
 <template>
     <tr class="tr" :class="{ 'tr-disabled' : user.user_status === 0 }" >
-        <td>{{user.user_name}}</td>
-        <td>{{user.user_email}}</td>
-        <td>{{user.user_password}}</td>
-        <td>{{user.user_phone}}</td>
-        <td>
+        <td class="user_name" style="width: 20%;">{{user.user_name}}</td>
+        <td class="user_email" style="width: 20%;">{{user.user_email}}</td>
+        <!-- <td class="user_password" style="width: 40%;">{{user.user_password}}</td> -->
+        <td class="user_phone" style="width: 20%;">{{user.user_phone}}</td>
+        <td class="assignment_name" style="width: 20%;">
             {{assignment_name[user.assignment_id -1]}}
         </td>
-        <td>   
-            <button type="button" class="btn btn-primary btn-modal" @click="movePage" :disabled="user.user_status === 0" >수정</button>
-            <button type="button" class="btn btn-primary btn-modal btn-stop" @click="openModal(user.user_id)"  :disabled="user.user_status === 0"  >활성화</button> 
-            <button class="btn btn-primary btn-modal btn-stop"  :disabled="user.user_status === 0" >작업 내역</button>
+        <td class="status_button" style="width: 20%;">   
+            <button type="button" class="btn btn-primary btn-modal" @click="moveModifyPage" :disabled="user.user_status === 0" >수정</button>
+            <button type="button" class="btn btn-primary btn-modal btn-stop" style="width: 75px; text-align: center;" @click="openModal(user.user_id)" :disabled="user.user_status === 0"  v-if="user.user_status == 1" >{{ msg }}</button> 
+            <button type="button" class="btn btn-primary btn-modal btn-stop" style="width: 75px; text-align: center;" @click="openModal(user.user_id)" :disabled="user.user_status === 0"  v-if="user.user_status == 0">{{ nextMsg }}</button> 
+            <button class="btn btn-primary btn-modal btn-stop"  :disabled="user.user_status === 0" @click="moveUserWorkPage">작업 내역</button>
         </td>
     </tr>
 </template>
@@ -26,21 +27,26 @@ export default {
     },
     data() {
     return {
-      message: '',
-      isDisalbed: true
+        message: '',
+        isDisalbed: true,
+        msg:"활성화",
+        nextMsg:"계정 정지"  
     }
   }, 
   methods: {
     openModal(id) {
         this.$emit("openModal", id);
     },
-    movePage() {
-      this.$router.push(`/admin/user/modify/${this.user_id}`)
+    moveModifyPage() {
+        this.$router.push(`/admin/user/modify/${this.user_id}`).catch(() => {});
     },
-    isChangeColor() {
-
+    moveUserWorkPage() {
+        sessionStorage.setItem('user_name', this.user.user_name)
+        sessionStorage.setItem('user_id', this.user.user_id)
+        sessionStorage.setItem('assignment_id', this.user.assignment_id)
+        this.$router.push(`/admin/user/workpage/${this.user_id}`).catch(() => {});
     },
-    }
+    },
 }
 </script>
 
