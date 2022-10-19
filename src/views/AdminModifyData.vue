@@ -5,21 +5,19 @@
     </div>
     <form class="needs-validation" @submit.prevent="submitForm($event)" novalidate>
       <div v-for="(column, i) in columnList.data" :key="i">
-        <UserInput :label="column.meta_name" :inputValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])" @inputFromChild="inputValueList[column.meta_name] = $event.target.value" v-if="column.meta_type === '1'" />
+        <UserInput :label="column.meta_name" :inputValue="(inputValueList[column.meta_key] = inputValueList[column.meta_key])" @inputFromChild="inputValueList[column.meta_key] = $event.target.value" v-if="column.meta_type === '1'" />
         <UserSelectBox
           :label="column.meta_name"
-          :selectValue="(inputValueList[column.meta_name] = inputValueList[column.meta_name])"
-          @selectFromChild="inputValueList[column.meta_name] = $event.target.value"
+          :selectValue="(inputValueList[column.meta_key] = inputValueList[column.meta_key])"
+          @selectFromChild="inputValueList[column.meta_key] = Number($event.target.value)"
           v-else-if="column.meta_type === '2'"
         />
-        <UserNote :label="column.meta_name" :note="(inputValueList[column.meta_name] = inputValueList[column.meta_name])" @inputFromChild="inputValueList[column.meta_name] = $event.target.value" v-else-if="column.meta_type === '5'" />
-        <!-- <UserRadioBox
-					:label="column.meta_name"
-					:radioValue="(inputValueList[column.meta_name] = Number(inputValueList[column.meta_name]))"
-					@radioFromChild="inputValueList[column.meta_name] = Number($event.target.value)"
-					v-else-if="column.meta_type === '4'" /> -->
+        <UserNote :label="column.meta_name" :note="(inputValueList[column.meta_key] = inputValueList[column.meta_key])" @inputFromChild="inputValueList[column.meta_key] = $event.target.value" v-else-if="column.meta_type === '5'" />
       </div>
-      <button type="submit" class="btn btn-secondary">저장</button>
+      <div class="buttons">
+        <button type="button" class="btn btn-secondary" @click="cancel">취소</button>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
     </form>
   </div>
 </template>
@@ -52,6 +50,7 @@ export default {
     };
   },
   created() {
+    this.data_status = sessionStorage.getItem('data_status')
     const setAddData = new FormData();
     const setEditData = new FormData();
 
@@ -59,8 +58,8 @@ export default {
     this.projectName = sessionStorage.getItem('workName');
     this.data_id = sessionStorage.getItem('data_id');
 
-    setAddData.set('work_id', this.projectCode);
     setEditData.set('data_id', this.data_id);
+    setAddData.set('work_id', this.projectCode);
 
     getUserAddForm(setAddData).then((result) => {
       this.columnList = result.data;
@@ -127,19 +126,21 @@ export default {
           },
         })
           .then((res) => {
-            console.log(inputData, this.data_status, this.projectCode);
-            e.target.reset();
-            this.inputValueList = {};
             var forms = document.querySelectorAll('.needs-validation');
             Array.prototype.slice.call(forms).forEach(function (form) {
               form.classList.remove('was-validated');
             });
-            this.$router.go(-1);
+            e.target.reset();
+            this.cancel();
           })
           .catch((err) => {
             console.log(err);
           });
       }
+    },
+    cancel() {
+      this.inputValueList = {};
+      this.$router.go(-1);
     },
   },
   components: { UserInput, Address, UserSelectBox, UserRadioBox, UserNote },
@@ -154,17 +155,38 @@ h3 {
   margin: 50px;
   text-align: center;
 }
-.btn-secondary {
+.buttons {
   display: flex;
+  margin: 35px auto;
   justify-content: center;
-  margin: 30px auto;
+  align-items: center;
+}
+.btn-primary,
+.btn-secondary {
+  width: 8%;
+  height: 2%;
+  border-radius: 10px;
+  margin: 0 20px auto;
   font-size: 0.9rem;
-  border: none;
-  width: 15%;
-  background-color: #e17b46;
+}
+.btn-primary {
+  background-color: #e17b45;
+  border-color: #e17b45;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #dc6425;
+  border-color: #dc6425;
+  color: white;
+}
+.btn-secondary {
+  background-color: white;
+  border-color: #e17b45;
+  color: #e17b45;
 }
 .btn-secondary:hover {
-  background-color: #c15a33;
+  background: #fbebe3;
+  border-color: #e17b45;
 }
 @media (max-width: 768px) {
   h3 {

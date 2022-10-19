@@ -7,14 +7,20 @@
 			<!-- {{$route.path}} -->
 			<form @submit.prevent="checkData" ref="checkForm">
 				<div class="mb-3">
-					<input type="email" class="form-control" placeholder="아이디" v-model="oauth.username" />
+					<input 
+            type="email" 
+            class="form-control" 
+            placeholder="아이디(이메일)" 
+            v-model="oauth.username" 
+            ref="username" />
 				</div>
 				<div class="mb-3">
 					<input
 						type="password"
 						class="form-control"
 						placeholder="비밀번호"
-						v-model="oauth.password" />
+						v-model="oauth.password" 
+            ref="pwd" />
 				</div>
 				<div class="mb-3">
 					<button type="submit" class="btn" @click="login" @keyup.enter="login">로그인</button>
@@ -30,9 +36,8 @@
 <script>
 import { computed, ref } from 'vue';
 import { oauthLogin, getLoginInfo, deleteStorage } from '/@service/login';
-import { isNotEmpty, jsonFromFormData } from '/@service/util';
+import { isNotEmpty } from '/@service/util';
 import { useStore } from 'vuex';
-import { getUser } from '/@service/api';
 
 export default {
 	data() {
@@ -56,18 +61,16 @@ export default {
 
 		return { user };
 	},
-	created() {
-		this.$cookies.remove('name');
-		this.$cookies.remove('type');
+	// created() {
+		// this.$cookies.remove('name');
+		// this.$cookies.remove('type');
 
-		deleteStorage();
-	},
+		// deleteStorage();
+	// },
 	mounted() {
 		getLoginInfo().then((result) => {
 			if (!result) {
 				this.oauth.username = result.data.user.user_name;
-			} else {
-				// console.log("정보없음");
 			}
 		});
 	},
@@ -77,17 +80,17 @@ export default {
 
 			if (!isNotEmpty(this.oauth.username)) {
 				this.msgbox('아이디를 입력하세요.');
+        this.$refs.username.focus();
 				return;
 			} else if (!isNotEmpty(this.oauth.password)) {
 				this.msgbox('비밀번호를 입력하세요');
+        this.$refs.pwd.focus();
 				return;
 			}
 			oauthData.set('username', this.oauth.username);
 			oauthData.set('password', this.oauth.password);
 
 			oauthLogin(oauthData, (result) => {
-				// console.log("result: ", result);
-
 				this.oauth.result = result;
 
 				if (this.idCheck) {

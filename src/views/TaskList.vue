@@ -20,45 +20,30 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="taskDivision" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="center">업무를 분배받을 인턴을 선택해주세요.</div>
-            <div class="form-group">
-              <div class="form-check" :key="i" v-for="(name, i) in user.name">
-                <input class="form-check-input float-none" type="radio" name="userName" :id="i" v-model="selectedUser" :value="name" @change="checkRadio" />
-                <label class="form-check-label" :for="i">
-                  {{ name }}
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">취소</button>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="divideTaskTodo()" :disabled="divideBtn">할일 분배</button>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="divideTaskLocation()" :disabled="divideBtn">실측 분배</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AdminModal
+      :user_name="user.name"
+      :user_id="user.id"
+      :selectedUser="selectedUser"
+      :divideBtn="divideBtn"
+      @cancel="cancelModal"
+      @checkRadio="changeRadio($event)"
+      @divideTask="divideTask($event)"
+    />
 
     <div class="flex">
       <!-- 업무분배 버튼 영역 -->
-      <div class="divide-area flex-area" v-if="selectedTask && selectedTaskName !== '완료' && selectedWork">
-        <button class="btn btn-secondary" type="button" v-if="selectList.length !== 0" data-bs-toggle="modal" data-bs-target="#taskDivision">업무 분배</button>
+      <div class="divide-area flex-area" v-if="selectedTask && selectedTaskName !== '완료' && selectedWork && !dataNone">
+        <button class="btn btn-secondary" type="button" v-if="selectList.length !== 0" @click="getDividenUser()" data-bs-toggle="modal" data-bs-target="#taskDivision">업무 분배</button>
         <button class="btn btn-secondary" type="button" v-else @click="this.msgbox('분배할 데이터를 선택해주세요.')">업무 분배</button>
       </div>
-      <div class="divide-area flex-area" v-else>
-
-      </div>
+      <div class="divide-area flex-area" v-else></div>
 
       <!-- 검색영역 -->
-      <div class="search-area flex-area" v-if="selectedWork && selectedTask">
+      <div class="search-area flex-area" v-if="selectedWork && selectedTask && !dataNone">
         <select class="form-select" v-model="selectedSearchOption" ref="searchSelect">
           <option value="">선택</option>
-          <option :value="searchOption" v-for="(searchOption, i) in searchOptionList" :key="i">
-            {{ searchOption }}
+          <option :value="searchOption" v-for="(searchOption, i) in searchOptionList.english" :key="i">
+            {{ searchOptionList.korean[i] }}
           </option>
         </select>
         <input type="text" class="form-control" ref="searchInput" :value="searchedData" @input="changeKeyword" @keypress.enter="searchTable" placeholder="검색어를 입력하세요" />
@@ -66,18 +51,23 @@
       </div>
     </div>
 
+    <!-- 테이블 영역 -->
+    <div class="show-nothing" v-if="dataNone">해당 데이터가 없습니다.</div>
     <div class="show-nothing" v-if="searchedNone">해당 검색어를 찾을 수 없습니다.</div>
-    <div ref="table" class="table-responsive" v-if="selectedWork && selectedTask && !searchedNone">
+
+    <div ref="table" class="table-responsive" v-if="selectedWork && selectedTask && !searchedNone && !dataNone">
       <table class="table">
         <thead>
           <tr>
             <th scope="col">
               <input type="checkbox" :value="allSelected" v-model="allSelected" />
             </th>
+            <th>No.</th>
             <th></th>
             <th scope="col">최종수정날짜</th>
-            <th :key="i" v-for="(datakey, i) in dataListKey">
-              {{ datakey }}
+            <th scope="col" v-if="selectedTask == 6">작성자</th>
+            <th scope="col" v-for="(th, i) in tableHeaderList" :key="i">
+              {{ th }}
             </th>
           </tr>
         </thead>
@@ -86,6 +76,7 @@
             <td scope="row">
               <input type="checkbox" :value="i" v-model="selectList" />
             </td>
+            <td>{{ (currentPage - 1) * 100 + (i + 1) }}</td>
             <td>
               <router-link :to="`/admin/tasklist/modify/${dataList.data[i].data_id}`">
                 <button type="button" class="btn btn-secondary" @click="pushDataId(dataList.data[i].data_id)">수정</button>
@@ -94,6 +85,9 @@
             <td scoped="row">
               {{ $filters.dateFormat(dataList.data[i].update_time) }}
             </td>
+            <td scoped="row" v-if="selectedTask == 6">
+              {{ dataList.data[i].user_name }}
+            </td>
             <td :key="j" v-for="(datakey, j) in dataListKey">
               {{ data[datakey] }}
             </td>
@@ -101,10 +95,25 @@
         </tbody>
       </table>
     </div>
+    <div class="pagination-center" v-if="selectedWork && selectedTask && !searchedNone && !dataNone">
+      <vue-awesome-paginate
+        :total-items="this.totalItems"
+        :items-per-page="this.itemsPerPage"
+        :max-pages-shown="this.MaxPagesShown"
+        :current-page="this.currentPage"
+        :on-click="onClickHandler"
+        :show-breakpoint-buttons="false"
+        :show-ending-buttons="true"
+        firstPageContent="<<"
+        lastPageContent=">>"
+      />
+    </div>
   </div>
 </template>
 <script>
 import { getDataInfo, getUserSearch, getUserList, getWorksInfo, setWorkDistribute } from '/@service/admin/data';
+import { getUserAddForm } from '/@service/user';
+import AdminModal from '/@components/AdminModal.vue';
 
 export default {
   created() {
@@ -124,41 +133,52 @@ export default {
       this.selectedTaskName = sessionStorage.getItem('selectedTaskName');
       this.selectedTask = sessionStorage.getItem('selectedTask');
 
-      this.getDividenUser();
       this.showAll();
     });
   },
   data() {
     return {
-      selectedTask: '',
+      // paginate 변수
+      totalItems: 0,
+      itemsPerPage: 100, //한 페이지 당 출력해야하는 행의 갯수
+      MaxPagesShown: 5, // 페이지 숫자 버튼 값 기본값 5개
+      currentPage: 1, //  현재 활성 페이지 기본값 1
+
       lists: [
         { text: '분배 전', value: '1' },
         { text: '실측필요', value: '4' },
         { text: '조사불가', value: '5' },
         { text: '완료', value: '6' },
       ],
+      // 셀렉트 선택 저장된 세션 불러오기
       workName: '',
       selectedWork: '',
+      selectedTask: '',
+      selectedTaskName: '',
+      // 업무분배시 선택된 데이터
+      selectedTaskList: [],
+
       projectList: [],
       workListValue: [],
       workListKey: [],
       dataList: [],
       dataListKey: [],
       dataListValue: [],
-      selectedTaskList: [],
       allChecked: false,
-      selectedTaskName: '',
       selectList: [],
-      modalShow: false,
-      divideBtn: true,
       searchedNone: false,
+      dataNone: false,
       searchedData: '',
       selectedSearchOption: '',
-      searchOptionList: [],
+      searchOptionList: {
+        korean: [],
+        english: [],
+      },
       assignment_id: '',
-      idsArray: [],
       selectedUser: '',
       selectedUserId: '',
+      divideBtn: true,
+      idsArray: [],
       data_id: '',
       names: [],
       user: {
@@ -166,20 +186,71 @@ export default {
         name: [],
       },
       dataId: [],
+      columnList: [],
+      tableHeaderList: [],
     };
   },
   methods: {
-    // 분배 받을 유저 갖고오기
-    getDividenUser() {
+    getData() {
       const setData = new FormData();
-      setData.set('assignment_id', this.assignment_id);
 
-      getUserList(setData).then((result) => {
-        this.names = result.data;
+      let work_id = '';
+      for (let i = 0; i < this.workListValue.length; i++) {
+        if (this.workListValue[i] === this.workName) {
+          work_id = this.workListKey[i];
+        }
+      }
 
-        for (let i = 0; i < this.names.user.length; i++) {
-          this.user.id.push(this.names.user[i].user_id);
-          this.user.name.push(this.names.user[i].user_name);
+      sessionStorage.setItem('workListValue', this.workListValue);
+      sessionStorage.setItem('workListKey', this.workListKey);
+      sessionStorage.setItem('selectedWork', work_id);
+      sessionStorage.setItem('workName', this.workName);
+
+      // 불러올 데이터 세팅하기
+      setData.set('work_id', work_id);
+      setData.set('data_status', this.selectedTask);
+      setData.set('row_count', this.itemsPerPage);
+      setData.set('page_no', this.currentPage);
+      // 실측필요의 경우 user_id가 없는 데이터만 불러옴
+      if (this.selectedTask == 4) {
+        setData.set('user_id', -1);
+      }
+      // 데이터 불러오기
+      getDataInfo(setData).then((result) => {
+        this.tableHeaderList = [];
+        this.dataList = result.data;
+
+        if (this.dataList.data.length !== 0) {
+          this.dataNone = false;
+          this.dataListKey = [];
+          this.dataListValue = [];
+
+          this.totalItems = this.dataList.total_count;
+          for (let i = 0; i < this.dataList.data.length; i++) {
+            this.dataId[i] = this.dataList.data[i].data_id;
+          }
+
+          this.dataListValue = [];
+          for (let i = 0; i < this.dataList.data.length; i++) {
+            const arr = JSON.parse(this.dataList.data[i].data_json);
+            this.dataListKey = Object.keys(arr);
+            this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
+          }
+          for (let i = 0; i < this.dataListValue.length; i++) {
+            this.selectedTaskList[i] = this.dataListValue[i];
+          }
+          // table header 이름으로 매칭
+          for (let i = 0; i < this.columnList.data.length; i++) {
+            for (let j = 0; j < this.columnList.data.length; j++) {
+              if (this.columnList.data[j].meta_key == this.dataListKey[i]) {
+                this.tableHeaderList.push(this.columnList.data[j].meta_name);
+              }
+            }    
+          }
+          this.searchOptionList.english = this.dataListKey;
+          this.searchOptionList.korean = this.tableHeaderList; 
+        } else {
+          this.dataNone = true;
         }
       });
     },
@@ -205,116 +276,25 @@ export default {
     },
     showAll() {
       // 셀렉트에 맞는
-      if (this.selectedTaskName !== '') {
-        const setData = new FormData();
-
+      if (this.selectedTaskName !== null) {
         let work_id = '';
         for (let i = 0; i < this.workListValue.length; i++) {
           if (this.workListValue[i] === this.workName) {
             work_id = this.workListKey[i];
           }
         }
+        const setData2 = new FormData();
+        this.projectCode = sessionStorage.getItem('projectCode');
+        this.projectName = sessionStorage.getItem('projectName');
+        // 테이블 헤드 메타데이터와 대조(한글명)
+        setData2.set('work_id', work_id);
 
-        sessionStorage.setItem('workListValue', this.workListValue);
-        sessionStorage.setItem('workListKey', this.workListKey);
-        sessionStorage.setItem('selectedWork', work_id);
-        sessionStorage.setItem('workName', this.workName);
-        if(this.selectedTask == 4) {
-          setData.set('work_id', work_id);
-          setData.set('data_status', this.selectedTask);
-          setData.set('user_id', -1);
-        } else {
-          setData.set('work_id', work_id);
-          setData.set('data_status', this.selectedTask);
-        }
-
-        getDataInfo(setData).then((result) => {
-          this.dataList = result.data;
-
-          if (this.dataList != null) {
-            for (let i = 0; i < this.dataList.data.length; i++) {
-              this.dataId[i] = this.dataList.data[i].data_id;
-            }
-
-            for (let i = 0; i < this.dataList.data.length; i++) {
-              const arr = JSON.parse(this.dataList.data[i].data_json);
-              this.dataListKey = Object.keys(arr);
-              this.searchOptionList = this.dataListKey;
-            }
-            this.dataListValue = [];
-            for (let i = 0; i < this.dataList.data.length; i++) {
-              this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
-            }
-
-            for (let i = 0; i < this.dataListValue.length; i++) {
-              this.selectedTaskList[i] = this.dataListValue[i];
-            }
-          }
+        getUserAddForm(setData2).then((result) => {
+          this.columnList = result.data;
+          this.getData();
         });
       }
       this.selectList = [];
-    },
-    checkRadio() {
-      this.divideBtn = false;
-    },
-    divideTaskTodo() {
-      for (let i = 0; i < this.user.id.length; i++) {
-        if (this.user.name[i] === this.selectedUser) {
-          this.selectedUserId = this.user.id[i];
-        }
-      }
-      this.tasks = this.selectList;
-
-      let ids = '';
-      for (let i = 0; i < this.tasks.length; i++) {
-        this.idsArray[i] = this.dataId[this.tasks[i]];
-      }
-
-      const setData = new FormData();
-      setData.set('user_id', this.selectedUserId);
-      setData.set('idsArray', this.idsArray);
-      setData.set('data_status', 2);
-
-      this.divideTask(setData);
-    },
-    divideTaskLocation() {
-      for (let i = 0; i < this.user.id.length; i++) {
-        if (this.user.name[i] === this.selectedUser) {
-          this.selectedUserId = this.user.id[i];
-        }
-      }
-      this.tasks = this.selectList;
-
-      let ids = '';
-      for (let i = 0; i < this.tasks.length; i++) {
-        this.idsArray[i] = this.dataId[this.tasks[i]];
-      }
-
-      const setData = new FormData();
-      setData.set('user_id', this.selectedUserId);
-      setData.set('idsArray', this.idsArray);
-      setData.set('data_status', 4);
-
-      this.divideTask(setData);
-    },
-    divideTask(setData) {
-      setWorkDistribute(setData).then((result) => {
-        console.log('result : ', result);
-        if (result.error.code != 0) {
-          this.msgbox(result.error.msg);
-          return;
-        }
-        this.msgbox(this.msg.SUCCESS);
-
-        this.cancel();
-        this.selectList = [];
-        this.$router.go();
-      });
-    },
-    cancel() {
-      this.selectedUser = '';
-      this.selectList = [];
-      this.divideBtn = true;
     },
     changeKeyword(w) {
       this.searchedData = w.target.value;
@@ -331,21 +311,35 @@ export default {
         setSearch.set('columnName', this.selectedSearchOption);
         setSearch.set('keyword', this.searchedData);
 
+        // 실측필요의 경우 user_id가 없는 데이터만 불러옴
+        if (this.selectedTask == 4) {
+          setSearch.set('user_id', -1);
+        }
+
         getUserSearch(setSearch).then((result) => {
           this.dataList = result.data;
 
+          this.totalItems = this.dataList.data.length;
+
+          this.dataListValue = [];
           for (let i = 0; i < this.dataList.data.length; i++) {
             const arr = JSON.parse(this.dataList.data[i].data_json);
             this.dataListKey = Object.keys(arr);
-            this.searchOptionList = this.dataListKey;
-          }
-          this.dataListValue = [];
-          for (let i = 0; i < this.dataList.data.length; i++) {
             this.dataListValue.push(JSON.parse(this.dataList.data[i].data_json));
           }
           if (this.dataListValue.length === 0) {
             this.searchedNone = true;
           }
+          // table header 이름으로 매칭
+          for (let i = 0; i < this.columnList.data.length; i++) {
+            for (let j = 0; j < this.columnList.data.length; j++) {
+              if (this.columnList.data[j].meta_key == this.dataListKey[i]) {
+                this.tableHeaderList.push(this.columnList.data[j].meta_name);
+              }
+            }    
+          }
+          this.searchOptionList.english = this.dataListKey;
+          this.searchOptionList.korean = this.tableHeaderList;
         });
 
         this.resetSearchOption();
@@ -362,6 +356,71 @@ export default {
         this.searchedData = '';
         this.showAll();
       }
+    },
+    onClickHandler(page) {
+      this.currentPage = page;
+      this.showAll();
+    },
+    cancelModal() {
+      this.selectedUser = '';
+      this.user = {
+        id: [],
+        name: [],
+      };
+      this.selectList = [];
+      this.divideBtn = true;
+    },
+    changeRadio(e) {
+      this.divideBtn = false;
+      this.selectedUser = e.target.value;
+    },
+    // 분배 받을 유저 갖고오기
+    getDividenUser() {
+      const setData = new FormData();
+      setData.set('assignment_id', this.assignment_id);
+
+      getUserList(setData).then((result) => {
+        this.names = result.data;
+
+        for (let i = 0; i < this.names.user.length; i++) {
+          this.user.id.push(this.names.user[i].user_id);
+          this.user.name.push(this.names.user[i].user_name);
+        }
+      });
+    },
+    divideTask(e) {
+      for (let i = 0; i < this.user.id.length; i++) {
+        if (this.user.name[i] === this.selectedUser) {
+          this.selectedUserId = this.user.id[i];
+        }
+      }
+      this.tasks = this.selectList;
+
+      for (let i = 0; i < this.tasks.length; i++) {
+        this.idsArray[i] = this.dataId[this.tasks[i]];
+      }
+
+      const setData = new FormData();
+      setData.set('user_id', this.selectedUserId);
+      setData.set('idsArray', this.idsArray);
+      // 할일분배, 실측분배 분기
+      if(e.target.value === "todo") {
+        setData.set('data_status', 2);
+      } else if(e.target.value === "location") {
+        setData.set('data_status', 4);
+      }
+      
+      setWorkDistribute(setData).then((result) => {
+        if (result.error.code != 0) {
+          this.msgbox(result.error.msg);
+          return;
+        }
+        this.msgbox(this.selectedUser + "님께 분배가 완료되었습니다.");
+
+        this.cancelModal();
+        this.selectList = [];
+        this.getData();
+      });
     },
   },
   computed: {
@@ -381,15 +440,35 @@ export default {
       },
     },
   },
+  components: { AdminModal },
 };
-
 </script>
 <style scoped>
 .container {
   margin-top: 20px;
   padding: 0;
 }
-
+.table-responsive tr td:nth-child(-n + 3) {
+  background: #fff;
+}
+.table-responsive tr th:first-child,
+.table-responsive tr td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 99;
+}
+.table-responsive tr th:nth-child(2),
+.table-responsive tr td:nth-child(2) {
+  position: sticky;
+  left: 28.99px;
+  z-index: 99;
+}
+.table-responsive tr th:nth-child(3),
+.table-responsive tr td:nth-child(3) {
+  position: sticky;
+  left: 66.6px;
+  z-index: 99;
+}
 .subject {
   text-align: center;
   margin: 30px;
@@ -401,55 +480,6 @@ export default {
 }
 .divide-area .btn-secondary:hover {
   background-color: #dc6425 !important;
-}
-.modal-content {
-  width: 80%;
-  margin: 0 auto;
-  font-size: .8rem;
-}
-.modal-body {
-  padding-top: 20px;
-}
-.modal-footer .btn-primary {
-  background-color: #E17B46;
-  border: 1px solid #e17b46;
-  font-size: .8rem;
-}
-.modal-footer .btn-secondary {
-  border: 1px solid #B9B9B9;
-  color: #828282;
-  background-color: #fff;
-  font-size: .8rem;
-}
-.modal-body .center {
-  font-weight: 700;
-  text-align: center;
-}
-.modal-footer {
-  justify-content: center;
-  border: none;
-}
-.form-group {
-  margin: 0 auto;
-  width: 60%;
-  padding-top: 20px;
-}
-.form-check {
-  display: inline-block;
-  width: 50%;
-}
-.form-check-label {
-  width: 80%;
-  text-align: left;
-  padding-top: 3px;
-  margin-left: 10px;
-}
-.show-nothing {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.3rem;
-  margin-top: 15rem;
 }
 
 @media (max-width: 420px) {

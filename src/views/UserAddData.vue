@@ -1,17 +1,23 @@
 <template>
   <div class="container">
     <div>
-      <h3>{{ projectName }}</h3>
+      <h3>
+        {{ projectName }}
+      </h3>
+      <h4>데이터 추가</h4>
     </div>
     <form class="needs-validation" @submit.prevent="submitForm($event)" novalidate>
       <div v-for="(column, i) in columnList.data" :key="i">
-        <UserInput :label="column.meta_name" :inputValue="(inputValueList[column.meta_name] = inputValue)" @inputFromChild="inputValueList[column.meta_name] = $event.target.value" v-if="column.meta_type === '1'" />
-        <UserSelectBox :label="column.meta_name" :selectValue="(inputValueList[column.meta_name] = selectValue)" @selectFromChild="inputValueList[column.meta_name] = Number($event.target.value)" v-else-if="column.meta_type === '2'" />
-        <UserNote :label="column.meta_name" :note="(inputValueList[column.meta_name] = note)" @inputFromChild="inputValueList[column.meta_name] = $event.target.value" v-else-if="column.meta_type === '5'" />
-        <UserRadioBox :label="column.meta_name" :radioValue="(inputValueList[column.meta_name] = radioValue)" @radioFromChild="inputValueList[column.meta_name] = Number($event.target.value)" v-else-if="column.meta_type === '4'" />
+        <UserInput :label="column.meta_name" :inputValue="(inputValueList[column.meta_key] = '')" @inputFromChild="inputValueList[column.meta_key] = $event.target.value" v-if="column.meta_type === '1'" />
+        <UserSelectBox :label="column.meta_name" :selectValue="(inputValueList[column.meta_key] = '')" @selectFromChild="inputValueList[column.meta_key] = Number($event.target.value)" v-else-if="column.meta_type === '2'" />
+        <UserNote :label="column.meta_name" :note="(inputValueList[column.meta_key] = '')" @inputFromChild="inputValueList[column.meta_key] = $event.target.value" v-else-if="column.meta_type === '5'" />
+        <UserRadioBox :label="column.meta_name" :radioValue="(inputValueList[column.meta_key] = '')" @radioFromChild="inputValueList[column.meta_key] = Number($event.target.value)" v-else-if="column.meta_type === '4'" />
       </div>
-      <UserRadioBox :radioValue="(data_status = null)" @radioFromChild="changeStatusValue($event)" />
-      <button type="submit" class="btn btn-secondary">저장</button>
+      <UserRadioBox :label="dataStatusLabel" :radioValue="(data_status = '')" @radioFromChild="changeStatusValue($event)" />
+      <div class="buttons">
+        <button type="button" class="btn btn-secondary" @click="cancel">취소</button>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
     </form>
   </div>
 </template>
@@ -25,6 +31,7 @@ import UserNote from '/@components/UserNote.vue';
 import axios from 'axios';
 import { getUserAddForm } from '/@service/user';
 import { msgbox } from '/@service/common';
+
 export default {
   data() {
     return {
@@ -40,6 +47,7 @@ export default {
         status: [],
       },
       user_id: '',
+      assignment_id: '',
       projectName: '',
       projectCode: '',
       znCode: null,
@@ -48,10 +56,13 @@ export default {
       extraRdAddress: null,
       detailAddress: null,
       isPassValidatoin: false,
+      dataStatusLabel: '데이터 상태',
     };
   },
   created() {
+    sessionStorage.setItem('isAddPage', 1);
     this.user_id = this.$cookies.get('userId');
+    this.assignment_id = this.$cookies.get('assignmentId');
     const setData = new FormData();
 
     this.projectCode = sessionStorage.getItem('projectCode');
@@ -64,39 +75,6 @@ export default {
     });
   },
   methods: {
-    openApi() {
-      new window.daum.Postcode({
-        oncomplete: (data) => {
-          var roadAddr = data.roadAddress;
-          var jibunAddr = data.jibunAddress;
-          var zoneCd = data.zonecode;
-          var extraRoadAddr = '';
-          var detailAddr = '';
-          if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-            extraRoadAddr += data.bname;
-          }
-          if (data.buildingName !== '' && data.apartment === 'Y') {
-            extraRoadAddr += extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName;
-          }
-          if (extraRoadAddr !== '') {
-            extraRoadAddr = ' (' + extraRoadAddr + ')';
-          }
-          document.getElementById('postcode').value = zoneCd;
-          document.getElementById('roadAddress').value = roadAddr;
-          document.getElementById('jibunAddress').value = jibunAddr;
-          if (roadAddr !== '') {
-            document.getElementById('extraAddress').value = extraRoadAddr;
-          } else {
-            document.getElementById('extraAddress').value = '';
-          }
-          this.rdAddress = roadAddr;
-          this.jbAddress = jibunAddr;
-          this.znCode = zoneCd;
-          this.extraRdAddress = extraRoadAddr;
-          this.detailAddress = detailAddr;
-        },
-      }).open();
-    },
     changeStatusValue(e) {
       this.data_status = Number(e.target.value);
       if (this.data_status != 2 && this.data_status != 6 && this.data_status != 4 && this.data_status != 5) {
@@ -111,9 +89,10 @@ export default {
         form: [],
         status: [],
       };
+
       for (var key in this.inputValueList) {
-        if (this.inputValueList[key] == null || this.inputValueList[key] == '') {
-          this.inputValueList[key] = null;
+        if (this.inputValueList[key] === null || this.inputValueList[key] === '') {
+          this.inputValueList[key] = '';
           this.errors['form'].push('Error');
         }
       }
@@ -121,7 +100,7 @@ export default {
         this.errors['status'].push('Error');
       }
       if (this.errors['form'].length != 0 && (this.data_status == 6 || this.data_status == 4 || this.data_status == 5)) {
-        msgbox('모든 입력창을 채워주세요');
+        msgbox('모든 입력란을 채워주세요');
         var forms = document.querySelectorAll('.needs-validation');
         Array.prototype.slice.call(forms).forEach(function (form) {
           form.classList.add('was-validated');
@@ -140,33 +119,35 @@ export default {
       this.checkForm();
       if (this.isPassValidatoin) {
         var inputData = JSON.stringify(this.inputValueList);
-        if (this.data_status == 4) {
-          this.user_id = -1;
-        }
+        var work_id = this.projectCode;
+
         axios({
           method: 'post',
-          url: '/web/db/edit',
+          url: '/web/db/store',
           data: {
-            data_id: this.data_id,
+            assignment_id: this.assignment_id,
+            work_id: work_id,
             user_id: this.user_id,
             data_json: inputData,
             data_status: this.data_status,
           },
         })
           .then((res) => {
-            console.log(inputData, this.data_id, this.data_status, this.user_id);
-            e.target.reset();
-            this.inputValueList = {};
             var forms = document.querySelectorAll('.needs-validation');
             Array.prototype.slice.call(forms).forEach(function (form) {
               form.classList.remove('was-validated');
             });
-            this.$router.go(-1);
+            e.target.reset();
+            this.cancel();
           })
           .catch((err) => {
             console.log(err);
           });
       }
+    },
+    cancel() {
+      this.inputValueList = {};
+      this.$router.go(-1);
     },
   },
   components: { UserInput, Address, UserSelectBox, UserRadioBox, UserNote },
@@ -178,20 +159,45 @@ export default {
   margin-top: 20px;
 }
 h3 {
-  margin: 50px;
+  margin: 50px auto 20px auto;
   text-align: center;
 }
-.btn-secondary {
+h4 {
+  margin-bottom: 50px;
+  text-align: center;
+}
+.buttons {
   display: flex;
+  margin: 35px auto;
   justify-content: center;
-  margin: 30px auto;
+  align-items: center;
+}
+.btn-primary,
+.btn-secondary {
+  width: 8%;
+  height: 2%;
+  border-radius: 10px;
+  margin: 0 20px auto;
   font-size: 0.9rem;
-  border: none;
-  width: 15%;
-  background-color: #e17b46;
+}
+.btn-primary {
+  background-color: #e17b45;
+  border-color: #e17b45;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #dc6425;
+  border-color: #dc6425;
+  color: white;
+}
+.btn-secondary {
+  background-color: white;
+  border-color: #e17b45;
+  color: #e17b45;
 }
 .btn-secondary:hover {
-  background-color: #c15a33;
+  background: #fbebe3;
+  border-color: #e17b45;
 }
 @media (max-width: 768px) {
   h3 {

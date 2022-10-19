@@ -20,13 +20,13 @@
           </span>
           <span class="title">진행률</span>{{avg()}} {{ avgs }}%</p>
         <div class="box">
-            <p class="card-text1"><span class="text">분배 전</span><span class="count_1">{{ numberWithCommas(data_status1) }} <span class="text-count">건</span></span></p>
+            <p class="card-text1 fix"><span class="text">분배 전</span><span class="count_1">{{ numberWithCommas(data_status1) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed"> 
-            <p class="card-text2"><span class="text">임시저장</span> <span class="count_2" style="margin-left: 187px;">{{ numberWithCommas(data_status3) }} <span class="text-count">건</span></span></p>
+            <p class="card-text2 fix"><span class="text">임시저장</span> <span class="count_2">{{ numberWithCommas(data_status3) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed">
-            <p class="card-text3"><span class="text">실측/조사불가</span> <span class="count_3" style="margin-left: 155px;">{{ numberWithCommas(data_status4) }} / {{ numberWithCommas(data_status5) }}</span> <span class="text-count">건</span></p>
+            <p class="card-text3 fix"><span class="text">실측/조사불가</span> <span class="count_3">{{ numberWithCommas(data_status4) }} / {{ numberWithCommas(data_status5) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed">
-            <p class="card-text4"><span class="text">완료</span><span class="count_4" style="margin-left: 216px;" >{{ numberWithCommas(data_status6) }} <span class="text-count">건</span></span></p>
+            <p class="card-text4 fix"><span class="text">완료</span><span class="count_4">{{ numberWithCommas(data_status6) }} <span class="text-count">건</span></span></p>
             <hr class="hr-dashed">
         </div>
         <p class="total">{{ total() }}(총 {{ numberWithCommas(totals) }} 건) </p>
@@ -39,40 +39,41 @@
 <script>
 
 export default {
-    name: 'AdminMainView',
-    props: {
-        assignment_id: Number,
-        data_status1: Number,
-        data_status6: Number,
-        data_status3: Number,
-        data_status4: Number,
-        data_status5: Number,
-    },
-    data() {
-      return {
-        totals: 0,
-        avgs: 0,
-      }
-    },
-    methods: {
-      total() {
-        this.totals = this.data_status5 + this.data_status4 + this.data_status3 + this.data_status6 + this.data_status1
+  name: 'AdminMainView',
+  props: {
+      assignment_id: Number,
+      data_status1: Number,
+      data_status2: Number,
+      data_status6: Number,
+      data_status3: Number,
+      data_status4: Number,
+      data_status5: Number,
+  },
+  data() {
+    return {
+      totals: 0,
+      avgs: 0,
+    }
+  },
+  methods: {
+    total() {
+      this.totals = this.data_status5 + this.data_status4 + this.data_status3 + this.data_status6 + this.data_status1 + this.data_status2;
     }, 
-      avg() {
-        if (isNaN()) { 
-          this.avgs = 0;
-        }
-        else {
-          this.avgs = Math.round((this.data_status5/this.totals)*100);
-        }
-    },
-      numberWithCommas(x) { 
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
-    },
-      route() {
-        sessionStorage.setItem('assignment_id', this.assignment_id);
-        this.$router.push('/admin/tasklist').catch(() => {});
+    avg() {
+      if (this.totals == 0) { 
+        this.avgs = 0;
       }
+      else {  
+        this.avgs = ((this.data_status6/this.totals)*100).toFixed(1);
+      }
+    },
+    numberWithCommas(x) { 
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+    },
+    route() {
+      sessionStorage.setItem('assignment_id', this.assignment_id);
+      this.$router.push('/admin/tasklist').catch(() => {});
+    }, 
   } 
 }
 </script>
@@ -89,22 +90,22 @@ export default {
 }
 
 .card {
-    width: 340px;
-    height: 272px !important;
-    border: 3px solid #e17b45;
-    border-radius: 20px;
-    margin: 0 auto;
+  width: 340px;
+  height: 272px !important;
+  border: 3px solid #e17b45;
+  border-radius: 20px;
+  margin: 0 auto;
 }
 
 .card-title {
-    margin-top: 15px;
-    margin-right: 8px;
-    text-align: center;
-    color: black;
-    text-decoration: underline;
-    text-underline-position: under;
-    font-size: 1.2rem;
-    font-weight: 900;
+  margin-top: 15px;
+  margin-right: 8px;
+  text-align: center;
+  color: black;
+  text-decoration: underline;
+  text-underline-position: under;
+  font-size: 1.2rem;
+  font-weight: 900;
 
 }
 .card-text {
@@ -139,13 +140,19 @@ a:hover {
 .text {
   margin-left: 7px;
 }
+.fix{
+  position: relative;
+}
 .count_1, .count_2, .count_3, .count_4 {
+    position: absolute;
+    right: 5px;
     font-size: 0.8rem;
-    margin-left: 200px;
     font-weight: 500;
 }
 .count_1 {
+ 
   color: #494949;
+  margin-left: 170px;
 }
 .count_2, .count_3{
   color: #D64C57;
@@ -154,6 +161,7 @@ a:hover {
   color: #3E8CDB;
 }
 .text-count {
+  /* position: fixed; */
   color: black;
   font-size: 0.8rem;
   font-weight: 500;
@@ -168,7 +176,7 @@ a:hover {
     color: #828282;
     position: absolute;
     bottom: 18px;
-    margin-left: 224px;
+    right: 20px;
 }
 
 .btn {

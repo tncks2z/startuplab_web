@@ -2,7 +2,7 @@
   <div class="input-group mb-3">
     <label class="form-label">{{ label }}</label>
     <select class="form-select" v-model="selectValue" @change="$emit('selectFromChild', $event)" required>
-      <option disabled value="" selected>선택</option>
+      <option value="" disabled selected>선택</option>
       <option v-for="(option, i) in selectOptionLists" :key="i" :value="option.value">
         {{ option.key }}
       </option>
@@ -14,14 +14,15 @@
 export default {
   props: {
     label: String,
-    selectValue: Number,
+    selectValue: String,
   },
+
   data() {
     return {
       selectOptionLists: [
-        { key: '없음', value: 0 },
-        { key: '있음', value: 1 },
-        { key: '확인필요', value: 2 },
+        { key: 'X', value: '0' },
+        { key: 'O', value: '1' },
+        { key: '확인필요', value: '2' },
       ],
     };
   },
@@ -30,6 +31,15 @@ export default {
 </script>
 
 <style scoped>
+select option[value=''][disabled] {
+  display: none;
+}
+select:invalid {
+  color: #b9b9b9;
+}
+select option {
+  color: black;
+}
 .input-group {
   flex-wrap: nowrap;
   margin: 0 auto;

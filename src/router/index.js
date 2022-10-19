@@ -8,10 +8,10 @@ import UserAddData from '/@views/UserAddData.vue';
 import UserEditData from '/@views/UserEditData.vue';
 import AdminMain from '/@views/AdminMain.vue';
 import TaskList from '/@views/TaskList.vue';
-import UserMain from '/@views/UserMain.vue';
+import UserMainPage from '/@views/UserMainPage.vue';
 import UserList from '/@views/UserList.vue';
-import UserReg from '/@components/user/UserReg.vue';
-import UserModify from '/@components/user/UserModify.vue';
+import UserReg from '/@views/UserReg.vue';
+import UserModify from '/@views/UserModify.vue';
 import AdminMainView from '/@components/AdminMainView.vue';
 import AdminModifyData from '/@views/AdminModifyData.vue';
 import UserWorkPage from '/@views/UserWorkPage.vue';
@@ -44,23 +44,19 @@ const routes = [
   },
   {
     path: '/admin',
+    name: "AdminMain",
     component: AdminMain,
     meta: { requireAuth: true },
   },
   {
     path: '/admin/tasklist',
+    name: 'TaskList',
     component: TaskList,
     meta: { requireAuth: true },
   },
   {
     path: '/user',
-    component: UserMain,
-    meta: { requireAuth: true },
-  },
-  {
-    path: '/user/list',
-    name: 'UserList',
-    component: UserList,
+    component: UserMainPage,
     meta: { requireAuth: true },
   },
   {
@@ -94,7 +90,7 @@ const routes = [
   },
   {
     path: '/admin/user/workpage/:user_id',
-    name : 'UserWorkPage',
+    name: 'UserWorkPage',
     component: UserWorkPage,
   },
 ];
@@ -117,6 +113,12 @@ router.beforeEach((to, from, next) => {
       alert('로그인이 필요합니다.');
       next('/');
       return;
+    }
+  } else {
+    if(from.path == '/admin') {
+      history.go(1);
+    } else if(from.path == '/user') {
+      history.go(1);
     }
   }
   next();

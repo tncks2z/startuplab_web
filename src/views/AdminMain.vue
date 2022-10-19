@@ -1,7 +1,7 @@
 <template>
   <div style="text-align: right">
-    <button type="submit" class="btn btn-secondary">
-      <router-link to="/admin/user/list"><a>인턴관리</a></router-link>
+    <button type="submit" class="btn btn-secondary" @click="moveUserListPage">
+      <a>인턴관리</a>
     </button>
   </div>
 
@@ -24,10 +24,14 @@ export default {
     };
   },
   created() {
-    axios.get('http://52.22.216.42:8090/web/assignment/nums/').then(({ data }) => {
-      this.datas = data.data.data;
-      console.log(this.datas);
+    window.onpageshow = function(event) {
+      if( event.persisted || (window.performance && window.performance.type == 2)) {
+        this.$router.push('/admin').catch(() => {});
+      }
+    }
 
+    axios.get('http://49.50.164.147:8090/web/assignment/nums/').then(({ data }) => {
+      this.datas = data.data.data;
       sessionStorage.removeItem('selectedWork');
       sessionStorage.removeItem('workName');
       sessionStorage.removeItem('selectedTaskName');
@@ -38,8 +42,11 @@ export default {
     AdminMainView,
   },
   methods: {
+    moveUserListPage() {
+        this.$router.push('/admin/user/list').catch(() => {});
   },
-};
+}
+}
 </script>
 
 <style scoped>
