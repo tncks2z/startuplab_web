@@ -241,7 +241,7 @@ table::-webkit-scrollbar-thumb {
 }
 .paginate-buttons {
   height: 30px;
-  width: 30px;
+  width: 40px;
   border: 1px solid #b9b9b9;
   cursor: pointer;
   background-color: #fff;

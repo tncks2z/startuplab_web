@@ -138,3 +138,17 @@ export async function getUserWorkData2(param, callback) {
     if (callback) callback(err.response);
   }
 }
+export async function getUsertotallangth(param, callback) {
+  try {
+    const data = {
+      assignment_id: param.get('assignment_id'),
+      user_status: param.get('user_status'),
+    };
+    const result = await axios.post('web/assignment/user/list/', data);
+
+    if (callback) callback(result.data);
+    return result.data;
+  } catch (err) {
+    if (callback) callback(err.response);
+  }
+}

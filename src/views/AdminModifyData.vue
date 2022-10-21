@@ -50,7 +50,7 @@ export default {
     };
   },
   created() {
-    this.data_status = sessionStorage.getItem('data_status')
+    this.data_status = sessionStorage.getItem('data_status');
     const setAddData = new FormData();
     const setEditData = new FormData();
 
@@ -87,26 +87,17 @@ export default {
         status: [],
       };
       for (var key in this.inputValueList) {
-        if (this.inputValueList[key] == '' || this.inputValueList[key] == null) {
-          this.inputValueList[key] = null;
+        if (this.inputValueList[key] === '' || this.inputValueList[key] === null) {
+          this.inputValueList[key] = '';
           this.errors['form'].push('Error');
         }
       }
-      // if (this.data_status == 1 || this.data_status == 2) {
-      // 	this.errors['status'].push('Error');
-      // }
       if (this.errors['form'].length != 0 && this.data_status == 6) {
         msgbox('모든 입력창을 채워주세요');
         var forms = document.querySelectorAll('.needs-validation');
         Array.prototype.slice.call(forms).forEach(function (form) {
           form.classList.add('was-validated');
         });
-        // } else if (this.errors['status'].length != 0) {
-        // 	alert('데이터 상태에 체크를 해주세요');
-        // 	var forms = document.querySelectorAll('.needs-validation');
-        // 	Array.prototype.slice.call(forms).forEach(function (form) {
-        // 		form.classList.add('was-validated');
-        // 	});
       } else {
         this.isPassValidatoin = true;
       }

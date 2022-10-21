@@ -19,7 +19,7 @@
 					{{ projects[assignment_id-1] }} <br class="sp" /><span class="theme_name">전체</span>
 				</h5>
 				<p class="user_per">
-					{{ userDataTotal() }}{{ userAss_progress }}%<br class="sp" /><span class="avg_per"
+					{{ userAss_progress }}%<br class="sp" /><span class="avg_per"
 						>(평균 {{ allUser_progress }}%)</span
 					>
 				</p>
@@ -69,7 +69,7 @@
 				<div class="search-area flex-area" v-if="selectedProjectCode">
 					<select v-model="selectedSearchOption" class="form-select" ref="searchSelect">
 					<option value="" selected disabled>선택</option>
-					<option value="dataStatus">데이터 상태</option>
+					<option value="dataStatus">데이터 상태</option> 
 					<option :value="searchOption" v-for="(searchOption, i) in searchOptionList.english" :key="i">
 						{{ searchOptionList.korean[i] }}
 					</option>
@@ -135,7 +135,7 @@
 <script>
 import { msgbox } from '../service/common';
 import { getUserWorkId,getUserSearch,getUserAddForm } from "/@service/user";
-import {getUserDataNum,getUserWorkData2} from "/@service/admin/data";
+import {getUserDataNum,getUserWorkData2,getUsertotallangth} from "/@service/admin/data";
 
 export default {
 	data() {
@@ -144,6 +144,7 @@ export default {
 			user_id: '',
 			pjName: '',
 			assignment_id: '',
+			user_status: 1,
 			work_name:'',
 			selectedProjectCode: '',
 			dataList: [],
@@ -167,6 +168,7 @@ export default {
 			allAss_dataTotal:0,
 			allUser_progress:0,
 			userAss_progress:0,
+			assUsertotal:[],
 			userWorkSt:[],
 			totalWork_progress:0,
 			userWork_progress:0,
@@ -184,7 +186,7 @@ export default {
 				korean: [],
 				english: [],
 			},
-			index: '',
+			searchDataIndex: '',
 			searchedNone : false,
 			dataNone : false,
 
@@ -213,34 +215,41 @@ export default {
 		// 전체 작업량 확인
 		const allAssData = new FormData();
 		const userAssData = new FormData();
+		const Usertotallangth = new FormData();
 
 		allAssData.set('assignment_id', this.assignment_id)
 		userAssData.set('assignment_id', this.assignment_id)
 		userAssData.set('user_id', this.user_id)
+		Usertotallangth.set('assignment_id', this.assignment_id)
+		Usertotallangth.set('user_status', this.user_status)
 
 		// 해당 프로젝트의 총 작업량
 		getUserDataNum(allAssData).then((data) => {
 			this.allAss_data = data.data.data;
 			this.allAss_dataTotal = this.allAss_data.data_status1+this.allAss_data.data_status2+this.allAss_data.data_status3+this.allAss_data.data_status4+this.allAss_data.data_status5+this.allAss_data.data_status6;
-			this.allUser_progress = ((this.allAss_data.data_status6/this.allAss_dataTotal)*100).toFixed(1) ;
+			
+			getUsertotallangth(Usertotallangth).then((data)=>{
+				this.assUsertotal =data.data.user.length
+			})
 			//프로젝트 전체 인원의 완료 비율
-			if (isNaN(this.allUser_progress) == true) { 
+			this.allUser_progress = (((this.allAss_data.data_status6/this.allAss_dataTotal)/this.assUsertotal)*100).toFixed(1) ;
+			console.log(this.allUser_progress)
+			if (isNaN(this.allUser_progress)== true) { 
 				this.allUser_progress = 0;
 			}
-		})
-		//유저 프로젝트 작업량
-		getUserDataNum(userAssData).then((data) => {
-			this.userAssSt = data.data.data;
+
+			//유저 프로젝트 작업량
+			getUserDataNum(userAssData).then((data) => {
+				this.userAssSt = data.data.data;
+				//유저의 작업비율
+				this.userAss_progress = ((this.userAssSt.data_status6/this.allAss_dataTotal)*100).toFixed(1) ;
+				if (isNaN(this.userAss_progress)== true) { 
+					this.userAss_progress = 0;
+				}
+			})
 		})
 	},
 	methods: {
-		userDataTotal(){
-			this.userAss_progress = ((this.userAssSt.data_status6/this.allAss_dataTotal)*100).toFixed(1) ;
-			//유저의 작업비율
-			if (isNaN(this.userAss_progress)== true) { 
-				this.userAss_progress = 0;
-			}
-		},
 		showProject(e) {
 			this.pjName = e.target.options[e.target.options.selectedIndex].text;
 			sessionStorage.setItem('workName', this.pjName)
@@ -256,21 +265,21 @@ export default {
 			getUserDataNum(allWorkData).then((data) =>{
 				this.allWork_data = data.data.data;
 				this.allWork_dataTotal = this.allWork_data.data_status1+this.allWork_data.data_status2+this.allWork_data.data_status3+this.allWork_data.data_status4+this.allWork_data.data_status5+this.allWork_data.data_status6;
-				this.totalWork_progress = ((this.allWork_data.data_status6/this.allWork_dataTotal)*100).toFixed(1) ;
 				//work_id별 전체 인원의 완료 비율
+				this.totalWork_progress = ((this.allWork_data.data_status6/this.allWork_dataTotal)*100).toFixed(1) ;
 				if (isNaN(this.totalWork_progress)== true) { 
 					this.totalWork_progress = 0;
 				}
-			})
-			// 유저 work_id별 작업량
-			getUserDataNum(userWorkData).then((data) =>{
-				this.userWorkSt = data.data.data;
-				this.userWork_progress = ((this.userWorkSt.data_status6/this.allWork_dataTotal)*100).toFixed(1) ;
-				// 해당 유저의 work_id 완료 비율
-				if (isNaN(this.userWork_progress)== true) {
-					this.userWork_progress = 0; 
-				}
-				this.showTable();
+				// 유저 work_id별 작업량
+				getUserDataNum(userWorkData).then((data) =>{
+					this.userWorkSt = data.data.data;
+					// 해당 유저의 work_id 완료 비율
+					this.userWork_progress = ((this.userWorkSt.data_status6/this.allWork_dataTotal)*100).toFixed(1) ;
+					if (isNaN(this.userWork_progress)== true) { 
+						this.userWork_progress = 0;
+					}
+					this.showTable();	
+				})
 			})
 		},
 		// api데이터 테이블로 출력
@@ -338,13 +347,14 @@ export default {
 			this.selectedSearchOption = '';
 		},
 		searchTable() {
+			// 데이터 상태로 검색
 			if (this.selectedSearchOption == 'dataStatus' && this.searchedData != '' ) {
 				for (let i = 0; i < this.tableTaskList.length; i++) {
 					if (this.tableTaskList[i].includes(this.searchedData)) {
-						this.index = i
+						this.searchDataIndex = i
 					}
 				}
-				this.dataList.data = this.dataList.data.filter((data) => data.data_status == this.index);
+				this.dataList.data = this.dataList.data.filter((data) => data.data_status == this.searchDataIndex);
 				this.totalItems = this.dataList.data.length;
 				this.tableHeaderList = [];	
 				if (this.dataList.data.length !== 0) {
@@ -373,6 +383,7 @@ export default {
 					this.searchedData = '';
 				}
 			} else {
+				// 그 외 칼럼명으로 검색
 				if (this.selectedSearchOption != '' && this.searchedData != '') {
 					const setSearch = new FormData();
 
@@ -410,13 +421,13 @@ export default {
 					});
 					this.resetSearchOption();
 					this.searchedData = '';
-				}else if ((this.selectedSearchOption == '') & (this.searchedData != '')) {
+				} else if ((this.selectedSearchOption == '') & (this.searchedData != '')) {
 					msgbox('검색할 칼럼을 선택해주세요');
 					this.$refs.searchSelect.focus();
-				}else if ((this.selectedSearchOption != '') & (this.searchedData == '')) {
+				} else if ((this.selectedSearchOption != '') & (this.searchedData == '')) {
 					msgbox('검색할 키워드를 입력해주세요');
 					this.$refs.searchInput.focus();
-				}else {
+				} else {
 					this.searchedNone = false;
 					this.resetSearchOption();
 					this.searchedData = '';
