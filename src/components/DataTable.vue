@@ -1,53 +1,55 @@
 <template>
-  <div class="show-nothing" v-if="dataNone">해당 데이터가 없습니다.</div>
-  <div class="show-nothing" v-if="searchedNone">해당 검색어를 찾을 수 없습니다.</div>
-  <div class="table-responsive" v-if="selectedProjectCode && selectedTaskCode && !dataNone && !searchedNone">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>No.</th>
-          <th></th>
-          <th scope="col">데이터 상태</th>
-          <th scope="col">최종수정날짜</th>
-          <th scope="col" v-for="(th, i) in tableHeaderList" :key="i">
-            {{ th.meta_name }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(data, i) in dataList.data" :key="i">
-          <td>{{ (currentPage - 1) * 100 + (i + 1) }}</td>
-          <td scope="row">
-            <router-link :to="`/user/edit/${data.data_id}`">
-              <button class="btn btn-secondary" type="button" id="buttonInput" @click="pushDataId(data.data_id)">수정</button>
-            </router-link>
-          </td>
-          <td scoped="row">
-            {{ tableTaskList[data.data_status] }}
-          </td>
-          <td scoped="row">
-            {{ $filters.dateFormat(data.update_time) }}
-          </td>
-          <td v-for="(value, j) in tableBody[i]" :key="j">
-            {{ value }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="pagination-center">
-    <vue-awesome-paginate
-      :total-items="this.totalItems"
-      :max-pages-shown="this.MaxPagesShown"
-      :current-page="this.currentPage"
-      :itemsPerPage="this.itemsPerPage"
-      :on-click="onClickHandler"
-      :show-breakpoint-buttons="false"
-      :show-ending-buttons="true"
-      firstPageContent="<<"
-      lastPageContent=">>"
-      v-if="selectedProjectCode && selectedTaskCode && !dataNone && !searchedNone"
-    />
+  <div>
+    <div class="show-nothing" v-if="dataNone">해당 데이터가 없습니다.</div>
+    <div class="show-nothing" v-if="searchedNone">해당 검색어를 찾을 수 없습니다.</div>
+    <div class="table-responsive" v-if="selectedProjectCode && selectedTaskCode && !dataNone && !searchedNone">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th></th>
+            <th scope="col">데이터 상태</th>
+            <th scope="col">최종수정날짜</th>
+            <th scope="col" v-for="(th, i) in tableHeaderList" :key="i">
+              {{ th.meta_name }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(data, i) in dataList.data" :key="i">
+            <td>{{ (currentPage - 1) * 100 + (i + 1) }}</td>
+            <td scope="row">
+              <router-link :to="`/user/edit/${data.data_id}`">
+                <button class="btn btn-secondary" type="button" id="buttonInput" @click="pushDataId(data.data_id)">수정</button>
+              </router-link>
+            </td>
+            <td scoped="row">
+              {{ tableTaskList[data.data_status] }}
+            </td>
+            <td scoped="row">
+              {{ $filters.dateFormat(data.update_time) }}
+            </td>
+            <td v-for="(value, j) in tableBody[i]" :key="j">
+              {{ value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-center">
+      <vue-awesome-paginate
+        :total-items="this.totalItems"
+        :max-pages-shown="this.MaxPagesShown"
+        :current-page="this.currentPage"
+        :itemsPerPage="this.itemsPerPage"
+        :on-click="onClickHandler"
+        :show-breakpoint-buttons="false"
+        :show-ending-buttons="true"
+        firstPageContent="<<"
+        lastPageContent=">>"
+        v-if="selectedProjectCode && selectedTaskCode && !dataNone && !searchedNone"
+      />
+    </div>
   </div>
 </template>
 
@@ -58,10 +60,10 @@ export default {
   props: {
     dataNone: Boolean,
     searchedNone: Boolean,
-    user_id: Number,
-    assignment_id: Number,
-    selectedProjectCode: Number,
-    selectedTaskCode: Number,
+    user_id: String,
+    assignment_id: String,
+    selectedProjectCode: String,
+    selectedTaskCode: String,
     pjName: String,
     tkName: String,
     searchedData: String,
