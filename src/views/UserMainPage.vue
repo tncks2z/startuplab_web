@@ -2,20 +2,20 @@
   <div class="container">
     <!-- 업무선택, 목록선택 셀렉트박스 -->
     <select v-model="selectedProjectCode" class="form-select select-project" id="selectProject" @change="showProject($event)">
-      <option value="null" selected disabled>업무 선택</option>
+      <option value="null" disabled selected>업무 선택</option>
       <option :key="i" :value="project.work_id" v-for="(project, i) in projectList">
         {{ project.work_name }}
       </option>
     </select>
     <select v-model="selectedTaskCode" class="form-select select-project" id="selectTask" @change="showTask($event)">
-      <option value="null" selected disabled>목록 선택</option>
+      <option value="null" disabled selected>목록 선택</option>
       <option :key="i" :value="task.tkcode" v-for="(task, i) in taskList">
         {{ task.tkname }}
       </option>
     </select>
 
     <!-- 데이터 추가버튼 -->
-    <button class="btn btn-secondary btn-add-data" type="button" v-show="selectedProjectCode != null" @click="goAddForm">데이터 추가</button>
+    <button class="btn btn-secondary btn-add-data" type="button" v-show="selectedProjectCode !== null" @click="goAddForm">데이터 추가</button>
 
     <!-- 제목 -->
     <div v-if="selectedProjectCode && selectedTaskCode">
@@ -64,8 +64,8 @@ import DataTable from '/@components/DataTable.vue';
 
 export default {
   created() {
-    this.assignment_id = this.$cookies.get('assignmentId');
-    this.user_id = this.$cookies.get('userId');
+    this.assignment_id = Number(this.$cookies.get('assignmentId'));
+    this.user_id = Number(this.$cookies.get('userId'));
     this.pjName = sessionStorage.getItem('projectName');
     this.tkName = sessionStorage.getItem('taskName');
     this.selectedProjectCode = sessionStorage.getItem('projectCode');
@@ -97,10 +97,10 @@ export default {
       selectedSearchOption: '',
       searchOptionList: {},
       taskList: [
-        { tkname: '할일', tkcode: 2 },
-        { tkname: '실측', tkcode: 4 },
-        { tkname: '임시저장', tkcode: 3 },
-        { tkname: '완료', tkcode: 6 },
+        { tkname: '할일', tkcode: '2' },
+        { tkname: '실측', tkcode: '4' },
+        { tkname: '임시저장', tkcode: '3' },
+        { tkname: '완료', tkcode: '6' },
       ],
       projectList: [],
       tableTaskList: ['삭제', '할당전', '할일', '임시저장', '실측', '조사불가', '완료'],

@@ -228,16 +228,15 @@ export default {
 			this.allAss_data = data.data.data;
 			this.allAss_dataTotal = this.allAss_data.data_status1+this.allAss_data.data_status2+this.allAss_data.data_status3+this.allAss_data.data_status4+this.allAss_data.data_status5+this.allAss_data.data_status6;
 			
+			//해당 프로젝트 별 총 유저 인원수
 			getUsertotallangth(Usertotallangth).then((data)=>{
 				this.assUsertotal =data.data.user.length
+				//프로젝트 전체 인원의 완료 비율
+				this.allUser_progress = ((this.allAss_data.data_status6/(this.assUsertotal*this.allAss_dataTotal))*100).toFixed(1) ;
+				if (isNaN(this.allUser_progress)== true) { 
+					this.allUser_progress = 0;
+				}
 			})
-			//프로젝트 전체 인원의 완료 비율
-			this.allUser_progress = (((this.allAss_data.data_status6/this.allAss_dataTotal)/this.assUsertotal)*100).toFixed(1) ;
-			console.log(this.allUser_progress)
-			if (isNaN(this.allUser_progress)== true) { 
-				this.allUser_progress = 0;
-			}
-
 			//유저 프로젝트 작업량
 			getUserDataNum(userAssData).then((data) => {
 				this.userAssSt = data.data.data;
@@ -266,7 +265,7 @@ export default {
 				this.allWork_data = data.data.data;
 				this.allWork_dataTotal = this.allWork_data.data_status1+this.allWork_data.data_status2+this.allWork_data.data_status3+this.allWork_data.data_status4+this.allWork_data.data_status5+this.allWork_data.data_status6;
 				//work_id별 전체 인원의 완료 비율
-				this.totalWork_progress = ((this.allWork_data.data_status6/this.allWork_dataTotal)*100).toFixed(1) ;
+				this.totalWork_progress = ((this.allWork_data.data_status6/(this.assUsertotal*this.allWork_dataTotal))*100).toFixed(1) ;
 				if (isNaN(this.totalWork_progress)== true) { 
 					this.totalWork_progress = 0;
 				}
